@@ -13,7 +13,9 @@ index = {"split_data": "00_core.ipynb",
          "get_tree_confidence": "00_core.ipynb",
          "rf_feat_importance": "00_core.ipynb",
          "rf_plot_fi": "00_core.ipynb",
-         "get_pairs": "00_core.ipynb"}
+         "get_pairs": "00_core.ipynb",
+         "x_to_dict": "00_core.ipynb",
+         "domain": "00_core.ipynb"}
 
 modules = ["autoforest.py"]
 
