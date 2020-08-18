@@ -5,17 +5,10 @@ __all__ = ["index", "modules", "custom_doc_links", "git_url"]
 index = {"split_data": "00_core.ipynb",
          "split_data_by_time": "00_core.ipynb",
          "rmse": "00_core.ipynb",
-         "print_score": "00_core.ipynb",
          "set_rf_samples": "00_core.ipynb",
          "reset_rf_samples": "00_core.ipynb",
-         "run_rf_regressor": "00_core.ipynb",
-         "predict": "00_core.ipynb",
-         "get_tree_confidence": "00_core.ipynb",
-         "rf_feat_importance": "00_core.ipynb",
-         "rf_plot_fi": "00_core.ipynb",
-         "get_pairs": "00_core.ipynb",
-         "x_to_dict": "00_core.ipynb",
-         "domain": "00_core.ipynb"}
+         "RfRegressor": "00_core.ipynb",
+         "CorrelatedColumns": "00_core.ipynb"}
 
 modules = ["autoforest.py"]
 
