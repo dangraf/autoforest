@@ -147,8 +147,8 @@ class RfRegressor():
         return pd.DataFrame({'cols':self.df.drop(self.y_col_name,axis=1).columns, 'imp':self.model.feature_importances_}
                        ).sort_values('imp', ascending=False)
 
-    def plot_fi(self, df_fi:pd.DataFrame):
-        return df_fi.plot('cols', 'imp', 'barh', figsize=(12,7), legend=False)
+    def plot_fi(self, df_fi:pd.DataFrame,**kwargs):
+        return df_fi.plot('cols', 'imp', 'barh', legend=False, **kwargs)
 
     def drop_cols_low_importance(self, tresh=0.005):
         df_feat = rfmodel.feature_importance()
@@ -165,12 +165,11 @@ class CorrelatedColumns:
     def plot_var_linkage(self):
         corr_condensed = hc.distance.squareform(1-self.corr)
         z = hc.linkage(corr_condensed, method='average')
-        fig = plt.figure(figsize=(16,10))
         dendrogram = hc.dendrogram(z, labels=self.df.columns, orientation='left', leaf_font_size=16)
         plt.show()
 
     def plot_correlation_heatmap(self):
-        f = plt.figure(figsize=(19, 15))
+        f=plt.gcf()
         plt.matshow(self.corr, fignum=f.number)
         plt.xticks(range(self.df.shape[1]), self.df.columns, fontsize=14, rotation=90)
         plt.yticks(range(self.df.shape[1]), self.df.columns, fontsize=14)
