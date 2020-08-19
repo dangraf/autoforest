@@ -8,9 +8,10 @@ index = {"split_data": "00_core.ipynb",
          "set_rf_samples": "00_core.ipynb",
          "reset_rf_samples": "00_core.ipynb",
          "RfRegressor": "00_core.ipynb",
-         "CorrelatedColumns": "00_core.ipynb"}
+         "CorrelatedColumns": "00_core.ipynb",
+         "RfOptimizer": "00_core.ipynb"}
 
-modules = ["autoforest.py"]
+modules = ["regressor.py"]
 
 doc_url = "https://fastai.github.io/autoforest/"
 
