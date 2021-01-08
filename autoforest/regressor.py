@@ -15,6 +15,10 @@ import math
 import scipy
 import time
 from scipy.cluster import hierarchy as hc
+from sklearn.tree import export_graphviz
+import IPython
+import graphviz
+import re
 
 # Cell
 def split_data(df_x, df_y, pct):
@@ -154,6 +158,20 @@ class RfRegressor():
         df_feat = rfmodel.feature_importance()
         cols_to_drop = df_feat[df_feat['imp']<tresh]['cols']
         self.df = self.df.drop(cols_to_drop, axis=1).copy()
+
+    def draw_tree(self, size=10, ratio=0.6, precision=0):
+        """ Draws a representation of a random forest in IPython.
+        Parameters:
+        -----------
+        t: The tree you wish to draw
+        df: The data used to train the tree. This is used to get the names of the features.
+        """
+        t = self.model.estimators_[0]
+        columns = list(self.df.columns).remove(self.y_col_name)
+        s=export_graphviz(t, out_file=None, feature_names=columns, filled=True,
+                          special_characters=True, rotate=True, precision=precision)
+        IPython.display.display(graphviz.Source(re.sub('Tree {',
+           f'Tree {{ size={size}; ratio={ratio}', s)))
 
 # Cell
 class CorrelatedColumns:
