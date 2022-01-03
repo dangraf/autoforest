@@ -2,19 +2,31 @@
 
 __all__ = ["index", "modules", "custom_doc_links", "git_url"]
 
-index = {"split_data": "00_core.ipynb",
-         "split_data_by_time": "00_core.ipynb",
-         "rmse": "00_core.ipynb",
-         "set_rf_samples": "00_core.ipynb",
-         "reset_rf_samples": "00_core.ipynb",
-         "RfRegressor": "00_core.ipynb",
-         "CorrelatedColumns": "00_core.ipynb",
-         "RfOptimizer": "00_core.ipynb"}
+index = {"split_data": "00_regressor.ipynb",
+         "split_data_by_time": "00_regressor.ipynb",
+         "rmse": "03_baysian_reg.ipynb",
+         "set_rf_samples": "03_baysian_reg.ipynb",
+         "reset_rf_samples": "03_baysian_reg.ipynb",
+         "RfRegressor": "03_baysian_reg.ipynb",
+         "CorrelatedColumns": "00_regressor.ipynb",
+         "RfOptimizer": "00_regressor.ipynb",
+         "fix_dataframe": "01_cleandata.ipynb",
+         "split_by_date": "01_cleandata.ipynb",
+         "display_all": "01_cleandata.ipynb",
+         "add_datepart": "01_cleandata.ipynb",
+         "is_date": "01_cleandata.ipynb",
+         "fill_missing_numeric": "01_cleandata.ipynb",
+         "fill_missing": "01_cleandata.ipynb",
+         "df_shrink_dtypes": "01_cleandata.ipynb",
+         "cont_cat_split": "01_cleandata.ipynb",
+         "feature_importance": "03_baysian_reg.ipynb"}
 
-modules = ["regressor.py"]
+modules = ["regressor.py",
+           "cleaner.py",
+           "reg.py"]
 
-doc_url = "https://fastai.github.io/autoforest/"
+doc_url = "https://dangraf.github.io/autoforest/"
 
-git_url = "https://github.com/fastai/autoforest/tree/master/"
+git_url = "https://github.com/dangraf/autoforest/tree/master/"
 
 def custom_doc_links(name): return None
