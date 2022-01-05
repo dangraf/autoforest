@@ -263,6 +263,7 @@ class RfOptimizer:
         for i in range(x.shape[0]):   # usually we only get one row of parameters for each call
             fs[i] = 0
             print(" ")
+
             rmse, std = self.rfmodel.run_rf_regressor(**self.x_to_dict(x[i]))
             print(f"{rmse:.5f}  {rmse*std:.5f}")
             #for n in range(nfold):  # run fit 3 times to get a more stable result
