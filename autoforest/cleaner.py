@@ -15,6 +15,7 @@ def fix_dataframe(df, y_col_name, datefield=None, ):
     df_shrink_dtypes(df)
     if datefield is not None:
         df.sort_values(datefield, inplace=True)
+        df = add_datepart(df, datefield)
     df[y_col_name] = np.log(df[y_col_name])
     return df
 
