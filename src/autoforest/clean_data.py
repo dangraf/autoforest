@@ -1,9 +1,61 @@
 import numpy as np
 from typing import List
 
-__all__ = ['df_shrink']
+__all__ = ['df_shrink',
+           'is_cat',
+           'cont_cat_split',
+           'fill_median',
+           'fill_random_sampling']
 
 import pandas as pd
+
+
+def is_cat(df, label, max_card=20):
+    if ((pd.api.types.is_integer_dtype(df[label].dtype) and
+         df[label].unique().shape[0] > max_card) or
+            pd.api.types.is_float_dtype(df[label].dtype)):
+        return False
+    else:
+        return True
+
+
+def fill_random_sampling(df: pd.DataFrame, label):
+    na_label = f"{label}_na"
+    if na_label in df.columns:
+        na = df[na_label]
+    else:
+        na = df[label].isna()
+    df_notna = df[~na]
+    samples = df_notna[label].sample(n=na.sum(), replace=True)
+    df.loc[na, label] = samples.values
+
+
+def fill_median(df: pd.DataFrame, label: str):
+    idx = len(df) // 2
+    na_label = f"{label}_na"
+    if na_label in df.columns:
+        na = df[na_label]
+    else:
+        na = df[label].isna()
+    df_notna = df[~na]
+    median = df_notna[label].sort_values().values[idx]
+    df[na_label] = na
+    df.loc[na, label] = median
+
+
+def cont_cat_split(df, max_card=20, dep_var=None):
+    "Helper function that returns column names of cont and cat variables from given `df`."
+    cont_names, cat_names = [], []
+    for label in df:
+        if label in list(dep_var):
+            continue
+        if ((pd.api.types.is_integer_dtype(df[label].dtype) and
+             df[label].unique().shape[0] > max_card) or
+                pd.api.types.is_float_dtype(df[label].dtype)):
+            cont_names.append(label)
+        else:
+            cat_names.append(label)
+    return cont_names, cat_names
 
 
 def df_shrink_dtypes(df, skip: List[str] = [], obj2cat=True, int2uint=False):
