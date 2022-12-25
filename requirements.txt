@@ -1,0 +1,8 @@
+pandas
+sklearn
+gpyopt
+gpy
+scipy
+matplotlib
+graphviz
+pathlib
