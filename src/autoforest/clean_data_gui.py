@@ -2,7 +2,7 @@ import streamlit as st
 from enum import Enum
 import pandas as pd
 from pathlib import Path
-import matplotlib.pyplot as plt
+from autoforest.gui_categorical import *
 
 from autoforest.clean_data import *
 
@@ -14,6 +14,7 @@ class CleanState(Enum):
     SEL_FILE = 0
     ITERATE_COLUMNS = 1
 
+
 def read_dataframe(uploaded_file):
     p = Path(uploaded_file.name)
     print(p.suffix)
@@ -24,39 +25,6 @@ def read_dataframe(uploaded_file):
     elif p.suffix == '.pcl':
         df = pd.read_picke(uploaded_file)
     return df
-
-def show_categorigal_stats(df, label):
-    num_na = df[label].isna().sum()
-    na_pct = num_na / len(df)
-    st.write(f"{na_pct:.2f}% of data contains NaN values")
-    if df[label].dtype.name == 'category':
-        reorder_categories(df, label)
-
-
-
-    if num_na != 0:
-        st.write("## NaN values")
-        st.write(
-            "NaN values need to be handled, an extra na-mask column is created to tell which values that are generated")
-        option = st.selectbox('Sampling func',
-                              options=['Random Sampling', 'Median', 'drop NA'])
-        if option == 'drop rows NA':
-            print('drop NA')
-            df.dropna(subset=[label], inplace=True)
-        elif option == 'Median':
-            print('Median')
-            fill_median(df, label)
-        elif option == 'Random Sampling':
-            print('Random Sampling')
-            fill_random_sampling(df, label)
-
-
-    df[label].value_counts().plot(kind='bar')
-
-    fig = plt.gcf()
-    st.pyplot(fig)
-    st.write(f"Num nan: {df[label].isna().sum()}")
-    st.session_state['df'] = df
 
 
 class DataCleanerGui:
@@ -75,13 +43,13 @@ class DataCleanerGui:
 
         print(col_index)
         col = df.columns[col_index]
-        st.write(f"Column Name: {df.columns[st.session_state['col_index']]}")
+        st.write(f"# {df.columns[st.session_state['col_index']]}")
         t = df[col].dtype
         st.write(f"ColIndex type: {str(t)}")
-        # st.selectbox(label='Column Type:', options=['float', 'int', 'categorical', 'datetime'])
+        st.selectbox(label='Column Type:', options=['continous', 'categorical', 'datetime'])
         if is_cat(df, col):
-            show_categorigal_stats(df, col)
-        print(f'saving df {col}')
+            df = show_categorigal_stats(df, col)
+        print(f'saving df {col} len {len(df)}')
         st.session_state['df'] = df
         if st.button('next'):
             print('next')
@@ -97,11 +65,6 @@ class DataCleanerGui:
                 st.session_state['col_index'] = 0
             st.experimental_rerun()
 
-
-
-
-
-
     def run_state_machine(self):
         if 'state' not in st.session_state:
             st.session_state['state'] = CleanState.SEL_FILE
@@ -115,5 +78,6 @@ class DataCleanerGui:
 
 
 if __name__ == "__main__":
+    st.set_page_config(layout="wide")
     cleaner = DataCleanerGui()
     cleaner.run_state_machine()

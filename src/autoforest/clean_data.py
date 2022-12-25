@@ -4,6 +4,7 @@ from typing import List
 __all__ = ['df_shrink',
            'is_cat',
            'cont_cat_split',
+           'get_na_mask',
            'fill_median',
            'fill_random_sampling']
 
@@ -19,25 +20,29 @@ def is_cat(df, label, max_card=20):
         return True
 
 
-def fill_random_sampling(df: pd.DataFrame, label):
+def get_na_mask(df, label):
     na_label = f"{label}_na"
     if na_label in df.columns:
         na = df[na_label]
     else:
         na = df[label].isna()
+    return na
+
+
+def fill_random_sampling(df: pd.DataFrame, label):
+    na_label = f"{label}_na"
+    na = get_na_mask(df, label)
     df_notna = df[~na]
     samples = df_notna[label].sample(n=na.sum(), replace=True)
+    df[na_label] = na
     df.loc[na, label] = samples.values
 
 
 def fill_median(df: pd.DataFrame, label: str):
-    idx = len(df) // 2
     na_label = f"{label}_na"
-    if na_label in df.columns:
-        na = df[na_label]
-    else:
-        na = df[label].isna()
+    na = get_na_mask(df, label)
     df_notna = df[~na]
+    idx = len(df_notna) // 2
     median = df_notna[label].sort_values().values[idx]
     df[na_label] = na
     df.loc[na, label] = median
