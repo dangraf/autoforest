@@ -45,16 +45,16 @@ def show_categorigal_stats(df, label):
         st.write("## NaN values")
         st.write(
             "NaN values need to be handled, an extra na-mask column is created to tell which values that are generated")
-        option = st.selectbox('Sampling func',
-                              options=['', 'Random Sampling', 'Median', 'drop rows NA'])
-        if option == 'drop rows NA':
-            df = df[~na_mask].reset_index(drop=True)
-        elif option == 'Median':
-            print('Median')
-            fill_median(df, label)
-        elif option == 'Random Sampling':
-            print('Random Sampling')
-            fill_random_sampling(df, label)
+        #option = st.selectbox('Sampling func',
+        #                      options=['', 'Random Sampling', 'Median', 'drop rows NA'])
+        #if option == 'drop rows NA':
+        #    df = df[~na_mask].reset_index(drop=True)
+        #elif option == 'Median':
+        #    print('Median')
+        #    fill_median(df, label)
+        #elif option == 'Random Sampling':
+        #    print('Random Sampling')
+        #    fill_random_sampling(df, label)
 
     df[label].value_counts().plot(kind='bar', figsize=(6, 1))
     fig = plt.gcf()

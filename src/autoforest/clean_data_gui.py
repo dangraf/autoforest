@@ -27,6 +27,12 @@ def read_dataframe(uploaded_file):
     return df
 
 
+def try_convert(label):
+    df = st.session_state['df']
+    df[label] = NormalizedDtype.try_convert(column=df[label],
+                                            stype=st.session_state.try_convert)
+
+
 class DataCleanerGui:
     def start_gui(self):
         uploaded_file = st.file_uploader("Choose a file")
@@ -40,16 +46,37 @@ class DataCleanerGui:
     def iterate_columns(self):
         df = st.session_state['df']
         col_index = st.session_state['col_index']
-
-        print(col_index)
-        col = df.columns[col_index]
+        label = df.columns[col_index]
         st.write(f"# {df.columns[st.session_state['col_index']]}")
-        t = df[col].dtype
-        st.write(f"ColIndex type: {str(t)}")
-        st.selectbox(label='Column Type:', options=['continous', 'categorical', 'datetime'])
-        if is_cat(df, col):
-            df = show_categorigal_stats(df, col)
-        print(f'saving df {col} len {len(df)}')
+        na_mask = get_na_mask(df, label)
+        num_na = na_mask.sum()
+        na_pct = num_na.sum() / len(df) * 100
+        st.write(f" **dtype:** {df[label].dtype.name}, {na_pct:.2f}% NaN values")
+
+        col1, col2 = st.columns(2)
+        col1.write(df[~na_mask][label][:5])
+
+        option = col2.selectbox('NA sampeling func',
+                                options=['', 'Random Sampling', 'Median', 'drop rows NA'])
+        if option == 'drop rows NA':
+            df = df[~na_mask].reset_index(drop=True)
+        elif option == 'Median':
+            print('Median')
+            fill_median(df, label)
+        elif option == 'Random Sampling':
+            print('Random Sampling')
+            fill_random_sampling(df, label)
+
+        type = st.selectbox(label='Column Type:',
+                            options=NormalizedDtype.get_list_of_types(),
+                            index=NormalizedDtype.get_index_from_dtype(df[label].dtype),
+                            on_change=try_convert,
+                            key='try_convert',
+                            args=(label,))
+        print(type)
+        if is_cat(df, label):
+            df = show_categorigal_stats(df, label)
+        print(f'saving df {label} len {len(df)}')
         st.session_state['df'] = df
         if st.button('next'):
             print('next')

@@ -1,14 +1,66 @@
 import numpy as np
 from typing import List
+from enum import Enum
 
 __all__ = ['df_shrink',
            'is_cat',
            'cont_cat_split',
            'get_na_mask',
            'fill_median',
-           'fill_random_sampling']
+           'fill_random_sampling',
+           'NormalizedDtype']
 
 import pandas as pd
+
+
+class NormalizedDtype(Enum):
+    Int = 0
+    Float = 1
+    Categorical = 2
+    Datetime = 3
+
+    @staticmethod
+    def get_list_of_types():
+        return [v.name for v in NormalizedDtype]
+
+    @staticmethod
+    def get_index_from_dtype(dtype):
+        if 'int' in dtype.name.lower():
+            return NormalizedDtype.Int.value
+        elif 'float' in dtype.name.lower():
+            return NormalizedDtype.Float.value
+        elif 'categorical' in dtype.name.lower():
+            return NormalizedDtype.Categorical.value
+        else:
+            return NormalizedDtype.Datetime.value
+
+    @staticmethod
+    def get_normalized_dtype(dtype):
+        if 'int' in dtype.name.lower():
+            return NormalizedDtype.Int
+        elif 'float' in dtype.name.lower():
+            return NormalizedDtype.Float
+        elif 'categorical' in dtype.name.lower():
+            return NormalizedDtype.Categorical
+        else:
+            return NormalizedDtype.Datetime
+
+    @staticmethod
+    def try_convert(column: pd.Series, stype: str):
+        try:
+            if stype == NormalizedDtype.Int.name:
+                s = column.astype('int')
+            elif stype == NormalizedDtype.Float.name:
+                s = column.astype('float')
+            elif stype == NormalizedDtype.Categorical:
+                s = column.astype('category')
+            else:
+                s = pd.to_datetime(column)
+        except BaseException as e:
+            s = column
+        return s
+
+        pass
 
 
 def is_cat(df, label, max_card=20):
