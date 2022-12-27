@@ -29,7 +29,7 @@ class NormalizedDtype(Enum):
             return NormalizedDtype.Int.value
         elif 'float' in dtype.name.lower():
             return NormalizedDtype.Float.value
-        elif 'categorical' in dtype.name.lower():
+        elif 'catego' in dtype.name.lower():
             return NormalizedDtype.Categorical.value
         else:
             return NormalizedDtype.Datetime.value
@@ -40,7 +40,7 @@ class NormalizedDtype(Enum):
             return NormalizedDtype.Int
         elif 'float' in dtype.name.lower():
             return NormalizedDtype.Float
-        elif 'categorical' in dtype.name.lower():
+        elif 'catego' in dtype.name.lower():
             return NormalizedDtype.Categorical
         else:
             return NormalizedDtype.Datetime

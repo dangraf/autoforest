@@ -3,6 +3,7 @@ from enum import Enum
 import pandas as pd
 from pathlib import Path
 from autoforest.gui_categorical import *
+import matplotlib.pyplot as plt
 
 from autoforest.clean_data import *
 
@@ -47,45 +48,57 @@ class DataCleanerGui:
         df = st.session_state['df']
         col_index = st.session_state['col_index']
         label = df.columns[col_index]
-        st.write(f"# {df.columns[st.session_state['col_index']]}")
+        st.sidebar.write(f"# {df.columns[st.session_state['col_index']]}")
         na_mask = get_na_mask(df, label)
         num_na = na_mask.sum()
         na_pct = num_na.sum() / len(df) * 100
-        st.write(f" **dtype:** {df[label].dtype.name}, {na_pct:.2f}% NaN values")
+        st.sidebar.write(f" **dtype:** {df[label].dtype.name}, {na_pct:.2f}% NaN values")
 
-        col1, col2 = st.columns(2)
-        col1.write(df[~na_mask][label][:5])
+        try:
+            st.sidebar.dataframe(df[~na_mask][label].iloc[:5])
+        except BaseException as e:
+            st.write(f"Error plotting dataframe: {e}")
+        if num_na != 0:
+            st.write(
+                '## Missing values\n',
+                'Please use sampling methods below to fill missing values, note the "drop-na" method cant be undone')
+            option = st.selectbox('NA sampeling func',
+                                  options=['', 'Random Sampling', 'Median', 'drop rows NA'])
+            if option == 'drop rows NA':
+                df = df[~na_mask].reset_index(drop=True)
+            elif option == 'Median':
+                fill_median(df, label)
+            elif option == 'Random Sampling':
+                fill_random_sampling(df, label)
 
-        option = col2.selectbox('NA sampeling func',
-                                options=['', 'Random Sampling', 'Median', 'drop rows NA'])
-        if option == 'drop rows NA':
-            df = df[~na_mask].reset_index(drop=True)
-        elif option == 'Median':
-            print('Median')
-            fill_median(df, label)
-        elif option == 'Random Sampling':
-            print('Random Sampling')
-            fill_random_sampling(df, label)
-
-        type = st.selectbox(label='Column Type:',
-                            options=NormalizedDtype.get_list_of_types(),
-                            index=NormalizedDtype.get_index_from_dtype(df[label].dtype),
-                            on_change=try_convert,
-                            key='try_convert',
-                            args=(label,))
-        print(type)
-        if is_cat(df, label):
+        st.sidebar.selectbox(label='Column Type:',
+                             options=NormalizedDtype.get_list_of_types(),
+                             index=NormalizedDtype.get_index_from_dtype(df[label].dtype),
+                             on_change=try_convert,
+                             key='try_convert',
+                             args=(label,))
+        ntype = NormalizedDtype.get_normalized_dtype(df[label].dtype)
+        print(ntype.value)
+        if ntype.value == NormalizedDtype.Categorical.value:
+            print('Enter Categorical')
             df = show_categorigal_stats(df, label)
-        print(f'saving df {label} len {len(df)}')
+        else:
+            try:
+                df[label].plot()
+                st.pyplot(plt.gcf())
+            except BaseException as e:
+                st.write(f"error plotting: {e}")
+
         st.session_state['df'] = df
-        if st.button('next'):
+        col1, col2 = st.sidebar.columns(2)
+        if col2.button('next'):
             print('next')
             st.session_state['col_index'] += 1
             if st.session_state['col_index'] > len(df):
                 st.session_state['col_index'] = len(df)
             st.experimental_rerun()
 
-        if st.button('prev'):
+        if col1.button('prev'):
             print('prev')
             st.session_state['col_index'] -= 1
             if st.session_state['col_index'] < 0:
