@@ -1,11 +1,15 @@
 import streamlit as st
 import pandas as pd
-from autoforest.clean_data import *
 import matplotlib.pyplot as plt
 import matplotlib
+from autoforest.gui_df_clean.st_api import *
 
 __all__ = ['reorder_categories',
            'show_categorigal_stats']
+
+PLOT_MAX_NUM_CATEGORIES = 120
+PLOT_FONT_SIZE = 4
+MAX_LEN_REORDER = 25
 
 
 def reorder_categories(df: pd.DataFrame, label):
@@ -13,7 +17,7 @@ def reorder_categories(df: pd.DataFrame, label):
     options = list(range(num_cats))
     selections = list()
     categories = list(df[label].cat.categories)
-    if len(categories) > 40:
+    if len(categories) > MAX_LEN_REORDER:
         # datetimes etc can be categorical but seldom need to be ordered
         return
     cats = ', '.join(list(df[label].cat.categories))
@@ -30,16 +34,17 @@ def reorder_categories(df: pd.DataFrame, label):
                 break
 
 
-def show_categorigal_stats(df: pd.DataFrame, label):
-    font = {'size': 4}
+def show_categorigal_stats():
+    df = get_df()
+    label = get_label()
+    font = {'size': PLOT_FONT_SIZE}
 
     matplotlib.rc('font', **font)
 
     if df[label].dtype.name == 'category':
         reorder_categories(df, label)
 
-
-    df[label].value_counts()[:120].plot(kind='bar', figsize=(6, 1))
+    df[label].value_counts()[:PLOT_MAX_NUM_CATEGORIES].plot(kind='bar', figsize=(6, 1))
     fig = plt.gcf()
     st.pyplot(fig)
     st.write(f"Num nan: {df[label].isna().sum()}")

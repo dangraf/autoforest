@@ -58,6 +58,7 @@ class NormalizedDtype(Enum):
                 s = pd.to_datetime(column)
         except BaseException as e:
             s = column
+
         return s
 
         pass
