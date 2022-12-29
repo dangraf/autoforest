@@ -1,4 +1,5 @@
 import streamlit as st
+import pandas as pd
 from enum import Enum
 
 __all__ = ['get_label',
@@ -6,7 +7,10 @@ __all__ = ['get_label',
            'set_df',
            'get_col_index',
            'set_col_index',
-           'CleanState']
+           'set_state',
+           'get_state',
+           'CleanState',
+           'init_states']
 
 
 class CleanState(Enum):
@@ -27,13 +31,30 @@ def set_col_index(index: int):
     st.session_state['col_index'] = index
 
 
-def get_label():
+def get_label() -> str:
     return st.session_state['df'].columns[st.session_state['col_index']]
 
 
-def get_df():
+def get_df() -> pd.DataFrame:
     return st.session_state['df']
 
 
-def set_df(df):
+def set_df(df: pd.DataFrame):
     st.session_state['df'] = df
+
+
+def get_state() -> CleanState:
+    return st.session_state['state']
+
+
+def set_state(state: CleanState):
+    st.session_state['state'] = state
+
+
+def init_states():
+    if 'state' not in st.session_state:
+        st.session_state['state'] = CleanState.SEL_FILE
+    if 'col_index' not in st.session_state:
+        st.session_state['col_index'] = -1
+    if 'df' not in st.session_state:
+        st.session_state['df'] = pd.DataFrame()

@@ -30,7 +30,7 @@ def show_type_conversion(stobj):
                                                 stype=st.session_state.try_convert)
         dt = df_shrink(df[[label]])
         print(dt.dtypes)
-        #df[label].astype(dt[0])
+        # df[label].astype(dt[0])
 
     stobj.selectbox(label='Column Type:',
                     options=NormalizedDtype.get_list_of_types(),
@@ -49,7 +49,13 @@ def show_header(stobj) -> str:
     na_mask = get_na_mask(df, label)
     num_na = na_mask.sum()
     na_pct = num_na.sum() / len(df) * 100
-    stobj.write(f" **dtype:** {df[label].dtype.name}, {na_pct:.2f}% NaN values")
+    ntype = NormalizedDtype.get_normalized_dtype(df[label].dtype)
+    if ntype.value is not NormalizedDtype.Categorical.value:
+        inf_mask = get_inf_mask(df, label)
+        inf_pct = inf_mask.sum() / len(df) * 100
+        stobj.write(f" **dtype:** {df[label].dtype.name},\n {na_pct:.2f}% NaN values\n {inf_pct:.2f}% inf values")
+    else:
+        stobj.write(f" **dtype:** {df[label].dtype.name},\n {na_pct:.2f}% NaN values")
 
     try:
         stobj.dataframe(df[~na_mask][label].iloc[:5])
@@ -90,19 +96,17 @@ def show_fillna(stobj):
         set_df(df)
 
 
-
-
 def start_gui():
     uploaded_file = st.file_uploader("Choose a file")
     if uploaded_file is not None:
         df = read_dataframe(uploaded_file)
-        st.session_state['df'] = df_shrink(df)
-        st.session_state['state'] = CleanState.ITERATE_COLUMNS
-        st.session_state['col_index'] = 0
+        set_df(df_shrink(df))
+        set_state(CleanState.ITERATE_COLUMNS)
+        set_col_index(0)
         st.experimental_rerun()
 
-def iterate_columns():
 
+def iterate_columns():
     show_header(st.sidebar)
     show_type_conversion(st.sidebar)
     show_fillna(st)
@@ -121,6 +125,7 @@ def iterate_columns():
         except BaseException as e:
             st.write(f"error plotting: {e}")
     show_navigation_buttons(st.sidebar)
+
 
 def run_state_machine():
     if 'state' not in st.session_state:

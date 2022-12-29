@@ -12,9 +12,18 @@ This file will become your README and also the index of your documentation.
 
 Fill me in please! Don't forget code examples:
 
-```
-1+1
-```
+# Todos:
+>- initalization function in api
+- add more filling startegies.
+- Different filling strategies depending on type
+>- add graphs for continous data
+- handle inf values and not only NA
+- compress data types during type-conversion
+- add interactive plots?
+
+Nice to have:
+- reset dataframe
+- create module to modify similar dataframes
 
 
 

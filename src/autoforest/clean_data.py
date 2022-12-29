@@ -6,6 +6,7 @@ __all__ = ['df_shrink',
            'is_cat',
            'cont_cat_split',
            'get_na_mask',
+           'get_inf_mask',
            'fill_median',
            'fill_random_sampling',
            'NormalizedDtype']
@@ -81,6 +82,13 @@ def get_na_mask(df, label):
         na = df[label].isna()
     return na
 
+def get_inf_mask(df, label):
+    inf_label = f"{label}_inf"
+    if inf_label in df.columns:
+        inf = df[inf_label]
+    else:
+        inf = np.isinf(df[label])
+    return inf
 
 def fill_random_sampling(df: pd.DataFrame, label):
     na_label = f"{label}_na"
