@@ -53,7 +53,14 @@ def show_header(stobj):
     if ntype.value is not NormalizedDtype.Categorical.value:
         inf_mask = get_inf_mask(df, label)
         inf_pct = inf_mask.sum() / len(df) * 100
-        stobj.write(f" **dtype:** {df[label].dtype.name},\n {na_pct:.2f}% NaN values\n {inf_pct:.2f}% inf values")
+
+        stobj.write(f"**dtype:** {df[label].dtype.name}")
+        stobj.write(f"**NaN values:** {na_pct:.2f}% num: {num_na}")
+        stobj.write(f"**Inf values:** {inf_pct:.2f}%: num: {inf_mask.sum()}")
+        stobj.write(f"**min:** {df[label].min():.2f} **max:** {df[label].max():.2f}")
+        #stobj.write(f"**max:** {df[label].max():.2f}")
+        stobj.write(f"**std:** {df[label].std():.2f} **mean:** {df[label].mean():.2f}")
+        #stobj.write(f"**mean:** {df[label].mean():.2f}")
     else:
         stobj.write(f" **dtype:** {df[label].dtype.name},\n {na_pct:.2f}% NaN values")
 

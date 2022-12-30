@@ -9,7 +9,6 @@ __all__ = ['show_continuous_stats']
 PLOT_FONT_SIZE = 4
 PLOT_NUM_BINS = 60
 
-
 # todo, show stats, min, max, skew, std, mean, median
 def show_operations(df: pd.DataFrame, label):
     # normalize
