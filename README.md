@@ -20,6 +20,7 @@ Fill me in please! Don't forget code examples:
 - handle inf values and not only NA
 - compress data types during type-conversion
 - add interactive plots?
+- add functions to handle dates in a better way.
 
 Nice to have:
 - reset dataframe

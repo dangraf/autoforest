@@ -6,3 +6,4 @@ scipy
 matplotlib
 graphviz
 pathlib
+streamlit

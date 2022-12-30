@@ -2,6 +2,7 @@ import streamlit as st
 import pandas as pd
 from pathlib import Path
 from autoforest.gui_df_clean.gui_categorical import *
+from autoforest.gui_df_clean.gui_continuous import *
 import matplotlib.pyplot as plt
 from autoforest.gui_df_clean.st_api import *
 from autoforest.clean_data import *
@@ -18,6 +19,8 @@ def read_dataframe(uploaded_file):
         df = pd.read_json(uploaded_file)
     elif p.suffix == '.pcl':
         df = pd.read_picke(uploaded_file)
+    else:
+        df = pd.DataFrame()
     return df
 
 
@@ -28,9 +31,6 @@ def show_type_conversion(stobj):
     def try_convert():
         df[label] = NormalizedDtype.try_convert(column=df[label],
                                                 stype=st.session_state.try_convert)
-        dt = df_shrink(df[[label]])
-        print(dt.dtypes)
-        # df[label].astype(dt[0])
 
     stobj.selectbox(label='Column Type:',
                     options=NormalizedDtype.get_list_of_types(),
@@ -40,12 +40,12 @@ def show_type_conversion(stobj):
     return
 
 
-def show_header(stobj) -> str:
+def show_header(stobj):
     df = get_df()
     label = get_label()
     col_index = get_col_index()
-    all = len(df.columns)
-    stobj.write(f"# {df.columns[col_index]} {col_index}/{all}")
+
+    stobj.write(f"# {df.columns[col_index]} {col_index}/{len(df.columns)}")
     na_mask = get_na_mask(df, label)
     num_na = na_mask.sum()
     na_pct = num_na.sum() / len(df) * 100
@@ -120,8 +120,7 @@ def iterate_columns():
         show_categorigal_stats()
     else:
         try:
-            df[label].plot()
-            st.pyplot(plt.gcf())
+            show_continuous_stats()
         except BaseException as e:
             st.write(f"error plotting: {e}")
     show_navigation_buttons(st.sidebar)
