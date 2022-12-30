@@ -10,7 +10,9 @@ __all__ = ['get_label',
            'set_state',
            'get_state',
            'CleanState',
-           'init_states']
+           'init_states',
+           'set_backup_df',
+           'get_backup_df']
 
 
 class CleanState(Enum):
@@ -51,6 +53,14 @@ def set_state(state: CleanState):
     st.session_state['state'] = state
 
 
+def set_backup_df(df: pd.DataFrame):
+    st.session_state['df_backup'] = df
+
+
+def get_backup_df() -> pd.DataFrame:
+    return st.session_state['df_backup']
+
+
 def init_states():
     if 'state' not in st.session_state:
         st.session_state['state'] = CleanState.SEL_FILE
@@ -58,3 +68,5 @@ def init_states():
         st.session_state['col_index'] = -1
     if 'df' not in st.session_state:
         st.session_state['df'] = pd.DataFrame()
+    if 'df_backup' not in st.session_state:
+        st.session_state['df_backup'] = pd.DataFrame()

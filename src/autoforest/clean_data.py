@@ -43,6 +43,8 @@ class NormalizedDtype(Enum):
             return NormalizedDtype.Float
         elif 'catego' in dtype.name.lower():
             return NormalizedDtype.Categorical
+        elif 'object' in dtype.name.lower():
+            return NormalizedDtype.Categorical
         else:
             return NormalizedDtype.Datetime
 
@@ -56,6 +58,7 @@ class NormalizedDtype(Enum):
             elif stype == NormalizedDtype.Categorical:
                 s = column.astype('category')
             else:
+                column = column.astype('object')
                 s = pd.to_datetime(column)
         except BaseException as e:
             s = column
@@ -82,6 +85,7 @@ def get_na_mask(df, label):
         na = df[label].isna()
     return na
 
+
 def get_inf_mask(df, label):
     inf_label = f"{label}_inf"
     if inf_label in df.columns:
@@ -89,6 +93,7 @@ def get_inf_mask(df, label):
     else:
         inf = np.isinf(df[label])
     return inf
+
 
 def fill_random_sampling(df: pd.DataFrame, label):
     na_label = f"{label}_na"
@@ -153,12 +158,29 @@ def df_shrink_dtypes(df, skip: List[str] = [], obj2cat=True, int2uint=False):
         else:
             new_t = t if isinstance(t, str) else None
 
-        if new_t: new_dtypes[c] = new_t
+        if new_t:
+            new_dtypes[c] = new_t
     return new_dtypes
 
 
-# %% ../../nbs/40_tabular.core.ipynb 33
+def categories_to_str(df: pd.DataFrame, skip: List[str] = []):
+    """
+    Converts all categorical values to strings since mixed types for categories
+    throws errors while plotting and saving dataframes
+    """
+
+    def exclude(dt):
+        return dt[0] not in skip
+
+    for label, dtype in filter(exclude, df.dtypes.items()):
+        if dtype.name == 'category':
+            df[label] = df[label].apply(lambda x: str(x))
+            df[label] = df[label].astype('category')
+
+
 def df_shrink(df, skip: List[str] = [], obj2cat=True, int2uint=False) -> pd.DataFrame:
     "Reduce DataFrame memory usage, by casting to smaller types returned by `df_shrink_dtypes()`."
     dt = df_shrink_dtypes(df, skip, obj2cat=obj2cat, int2uint=int2uint)
-    return df.astype(dt)
+    df = df.astype(dt)
+    categories_to_str(df, skip=skip)
+    return df

@@ -14,14 +14,16 @@ Fill me in please! Don't forget code examples:
 
 # Todos:
 - add more filling startegies.
+- show statistics for datetime dtypes
 - Different filling strategies depending on type
-- add text statistics to continuous data
+- add statistics if the data has zero mean and zero variance. the statistics measurement method.
 - handle inf values and not only NA < not applicable?
 - autorefresh when replacing values? some bug at column 5
 - add possibility to undo operations.
 - compress data types during type-conversion
 - add interactive plots?
 - add functions to handle dates in a better way.
+- Handle NA values for categories as another category
 
 Nice to have:
 - reset dataframe

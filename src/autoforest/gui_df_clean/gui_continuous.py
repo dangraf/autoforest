@@ -17,9 +17,9 @@ def show_operations(df: pd.DataFrame, label):
     # replace
     with st.expander('Operations'):
         if 'float' in df[label].dtype.name:
-            options = ['log', 'exp', 'normalize', 'reset_ops']
+            options = [' ', 'log', 'exp', 'normalize', 'reset_ops']
         else:
-            options = ['replace', 'reset_ops']
+            options = [' ', 'replace', 'reset_ops']
 
         s = st.selectbox(f"Apply operation", options=options)
         if s == 'log':

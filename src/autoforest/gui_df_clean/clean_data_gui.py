@@ -3,9 +3,9 @@ import pandas as pd
 from pathlib import Path
 from autoforest.gui_df_clean.gui_categorical import *
 from autoforest.gui_df_clean.gui_continuous import *
-import matplotlib.pyplot as plt
 from autoforest.gui_df_clean.st_api import *
 from autoforest.clean_data import *
+from io import BytesIO
 
 __all__ = ['run_state_machine']
 
@@ -19,6 +19,8 @@ def read_dataframe(uploaded_file):
         df = pd.read_json(uploaded_file)
     elif p.suffix == '.pcl':
         df = pd.read_picke(uploaded_file)
+    elif p.suffix == '.feather':
+        df = pd.read_feather(uploaded_file)
     else:
         df = pd.DataFrame()
     return df
@@ -50,7 +52,8 @@ def show_header(stobj):
     num_na = na_mask.sum()
     na_pct = num_na.sum() / len(df) * 100
     ntype = NormalizedDtype.get_normalized_dtype(df[label].dtype)
-    if ntype.value is not NormalizedDtype.Categorical.value:
+    if ntype.value == NormalizedDtype.Int.value or \
+            ntype.value == NormalizedDtype.Float.value :
         inf_mask = get_inf_mask(df, label)
         inf_pct = inf_mask.sum() / len(df) * 100
 
@@ -58,9 +61,7 @@ def show_header(stobj):
         stobj.write(f"**NaN values:** {na_pct:.2f}% num: {num_na}")
         stobj.write(f"**Inf values:** {inf_pct:.2f}%: num: {inf_mask.sum()}")
         stobj.write(f"**min:** {df[label].min():.2f} **max:** {df[label].max():.2f}")
-        #stobj.write(f"**max:** {df[label].max():.2f}")
         stobj.write(f"**std:** {df[label].std():.2f} **mean:** {df[label].mean():.2f}")
-        #stobj.write(f"**mean:** {df[label].mean():.2f}")
     else:
         stobj.write(f" **dtype:** {df[label].dtype.name},\n {na_pct:.2f}% NaN values")
 
@@ -71,6 +72,25 @@ def show_header(stobj):
 
 
 def show_navigation_buttons(strobj):
+    col1, col2  =strobj.columns(2)
+    if col1.button('reset data'):
+        label = get_label()
+        df = get_df()
+        orig_df = get_backup_df()
+        df[label]  = orig_df[label]
+        st.experimental_rerun()
+
+    if col2.button('save dataframe'):
+        output = BytesIO()
+        df = get_df()
+        df.to_feather(output)
+        st.download_button(
+            "Press to Download",
+            output,
+            "dataframe.feather",
+            "feather",
+            key='download-feather')
+
     col1, col2 = strobj.columns(2)
     col_index = get_col_index()
     if col2.button('next'):
@@ -80,6 +100,7 @@ def show_navigation_buttons(strobj):
     if col1.button('prev'):
         set_col_index(col_index - 1)
         st.experimental_rerun()
+
 
 
 def show_fillna(stobj):
@@ -108,6 +129,7 @@ def start_gui():
     if uploaded_file is not None:
         df = read_dataframe(uploaded_file)
         set_df(df_shrink(df))
+        set_backup_df(df)
         set_state(CleanState.ITERATE_COLUMNS)
         set_col_index(0)
         st.experimental_rerun()
