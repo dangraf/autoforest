@@ -7,3 +7,4 @@ matplotlib
 graphviz
 pathlib
 streamlit
+fastcore
