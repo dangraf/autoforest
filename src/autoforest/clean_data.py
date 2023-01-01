@@ -1,6 +1,7 @@
 import numpy as np
 from typing import List
 from enum import Enum
+import re
 
 __all__ = ['df_shrink',
            'is_cat',
@@ -183,4 +184,31 @@ def df_shrink(df, skip: List[str] = [], obj2cat=True, int2uint=False) -> pd.Data
     dt = df_shrink_dtypes(df, skip, obj2cat=obj2cat, int2uint=int2uint)
     df = df.astype(dt)
     categories_to_str(df, skip=skip)
+    return df
+
+
+def make_date(df, date_field):
+    "Make sure `df[date_field]` is of the right date type."
+    field_dtype = df[date_field].dtype
+    if isinstance(field_dtype, pd.core.dtypes.dtypes.DatetimeTZDtype):
+        field_dtype = np.datetime64
+    if not np.issubdtype(field_dtype, np.datetime64):
+        df[date_field] = pd.to_datetime(df[date_field], infer_datetime_format=True)
+
+
+def add_datepart(df, field_name, prefix=None, drop=True, time=False):
+    "Helper function that adds columns relevant to a date in the column `field_name` of `df`."
+    make_date(df, field_name)
+    field = df[field_name]
+    if prefix is None:
+        prefix = re.sub('[Dd]ate$', '', field_name)
+    attr = ['Year', 'Month', 'Week', 'Day', 'Dayofweek', 'Dayofyear', 'Is_month_end', 'Is_month_start',
+            'Is_quarter_end', 'Is_quarter_start', 'Is_year_end', 'Is_year_start']
+    if time: attr = attr + ['Hour', 'Minute', 'Second']
+    # Pandas removed `dt.week` in v1.1.10
+    week = field.dt.isocalendar().week.astype(field.dt.day.dtype) if hasattr(field.dt, 'isocalendar') else field.dt.week
+    for n in attr: df[prefix + n] = getattr(field.dt, n.lower()) if n != 'Week' else week
+    mask = ~field.isna()
+    df[prefix + 'Elapsed'] = np.where(mask, field.values.astype(np.int64) // 10 ** 9, np.nan)
+    if drop: df.drop(field_name, axis=1, inplace=True)
     return df
