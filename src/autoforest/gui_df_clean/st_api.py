@@ -13,7 +13,9 @@ __all__ = ['get_label',
            'init_states',
            'set_backup_df',
            'get_backup_df',
-           'get_col_type']
+           'get_col_type',
+           'add_operation',
+           'get_operations']
 
 from autoforest.clean_data import NormalizedDtype
 

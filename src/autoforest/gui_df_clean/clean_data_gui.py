@@ -124,8 +124,8 @@ def show_fillna(stobj):
                'FillConstant': FillConstant,
                'Interpolate': FillInterpolate,
                'drop rows NA': DropNA}
-        exclude_lookup = {NormalizedDtype.Int.value: ['Na As Category', 'Mean', 'Interpolate'],
-                          NormalizedDtype.Float.value: ['Na As Category'],
+        # Nan values does only not exist for int-values
+        exclude_lookup = {NormalizedDtype.Float.value: ['Na As Category'],
                           NormalizedDtype.Categorical: ['Mean', 'Interpolate'],
                           NormalizedDtype.Datetime: ['Na As Category', 'Mean']}
         options = [value for value in all.keys() if value not in exclude_lookup[dtype.value]]
@@ -137,10 +137,12 @@ def show_fillna(stobj):
         if option == 'FillConstant':
             operation = None
             # todo, add form to submit answer
-            # todo check type and cast input to current type
             pass
 
-
+        if operation is not None:
+            tfm = option(**kwargs)
+            df = tfm.encodes(df)
+            add_operation(tfm)
         set_df(df)
 
 

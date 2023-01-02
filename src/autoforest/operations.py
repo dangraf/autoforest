@@ -4,6 +4,7 @@ import pandas as pd
 from numpy import int8, int16, int32, int64
 from numpy import uint8, uint16, uint32, uint64
 from numpy import float32, float64, longdouble
+import numpy as np
 
 from autoforest.clean_data import get_na_mask
 
@@ -145,7 +146,6 @@ class FillFwd(InplaceTransform):
         _add_na_column(df, self.label)
 
         df[self.label].ffill(inplace=True)
-        df[self.label].bfill(inplace=True)
         return df
 
 
@@ -157,7 +157,6 @@ class FillBwd(InplaceTransform):
         _add_na_column(df, self.label)
 
         df[self.label].bfill(inplace=True)
-        df[self.label].ffill(inplace=True)
         return df
 
 
@@ -169,7 +168,16 @@ class FillInterpolate(InplaceTransform):
 
     def encodes(self, df: pd.DataFrame):
         _add_na_column(df, self.label)
+        conv_to_datetime = False
+        if 'datetime' in df[self.label].dtype.name:
+            conv_to_datetime = True
+            df[self.label] = df[self.label].astype(int64)
+            df[self.label][df[self.label] < 0] = np.nan
+
         df[self.label].interpolate(method=self.method, inplace=True, **self.kwargs)
+
+        if conv_to_datetime:
+            df[self.label] = pd.to_datetime(df[self.label], unit='ns')
         return df
 
 
