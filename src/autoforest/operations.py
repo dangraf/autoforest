@@ -12,7 +12,7 @@ __all__ = ['Normalize',
            'ReorderCategories',
            'SetDType',
            'FillNaAsCategory',
-           'Fill_Median',
+           'FillMedian',
            'FillRandomSampling',
            'FillFwd',
            'FillBwd',
@@ -24,6 +24,7 @@ __all__ = ['Normalize',
 
 class SetDType(InplaceTransform):
     def __init__(self, label: str, dtype: str):
+        super().__init__()
         self.label = label
         self.dtype = dtype
 
@@ -34,6 +35,7 @@ class SetDType(InplaceTransform):
 
 class Normalize(InplaceTransform):
     def __init__(self, label: str, std: float = None, mean: float = None):
+        super().__init__()
         self.label = label
         self.std = std
         self.mean = mean
@@ -59,22 +61,24 @@ def _add_na_column(df, label):
 
 class FillNaAsCategory(InplaceTransform):
     def __init__(self, label):
+        super().__init__()
         self.label = label
 
     def encodes(self, df: pd.DataFrame):
-        l = list(df[self.label].cat.categories)
-        if 'NA' not in l:
-            l.insert(0, 'NA')
+        cats = list(df[self.label].cat.categories)
+        if 'NA' not in cats:
+            cats.insert(0, 'NA')
             df[self.label] = df[self.label].cat.add_categories(['NA'])
-            df[self.label] = df[self.label].cat.reorder_categories(l)
+            df[self.label] = df[self.label].cat.reorder_categories(cats)
             if f"{self.label}_na" in df.columns:
-                df.dropna(self.label, axis='columns', inplace=True)
+                df.dropna(subset=[self.label], axis='columns', inplace=True)
         df.loc[df[self.label].isna(), self.label] = 'NA'
         return df
 
 
-class Fill_Median(InplaceTransform):
+class FillMedian(InplaceTransform):
     def __init__(self, label: str):
+        super().__init__()
         self.label = label
 
     def encodes(self, df):
@@ -89,6 +93,7 @@ class Fill_Median(InplaceTransform):
 
 class FillMean(InplaceTransform):
     def __init__(self, label: str):
+        super().__init__()
         self.label = label
 
     def encodes(self, df):
@@ -102,6 +107,7 @@ class FillMean(InplaceTransform):
 
 class FillRandomSampling(InplaceTransform):
     def __init(self, label: str):
+        super().__init__()
         self.label = label
 
     def encodes(self, df):
@@ -115,6 +121,7 @@ class FillRandomSampling(InplaceTransform):
 
 class ReorderCategories(InplaceTransform):
     def __init__(self, label, categories):
+        super().__init__()
         self.label = label
         self.categories = categories
 
@@ -127,19 +134,21 @@ class ReorderCategories(InplaceTransform):
 
 class FillConstant(InplaceTransform):
     def __init__(self, label, constant):
+        super().__init__()
         self.label = label
         self.constant = constant
 
     def encodes(self, df: pd.DataFrame):
         self.constant = eval(df[self.label].dtype.name)(self.constant)
         _add_na_column(df, self.label)
-        na_mask = get_na_mask()
+        na_mask = get_na_mask(df, self.label)
         df.loc[na_mask, self.label] = self.constant
         return df
 
 
 class FillFwd(InplaceTransform):
     def __init__(self, label):
+        super().__init__()
         self.label = label
 
     def encodes(self, df: pd.DataFrame):
@@ -151,6 +160,7 @@ class FillFwd(InplaceTransform):
 
 class FillBwd(InplaceTransform):
     def __init__(self, label):
+        super().__init__()
         self.label = label
 
     def encodes(self, df: pd.DataFrame):
@@ -162,6 +172,7 @@ class FillBwd(InplaceTransform):
 
 class FillInterpolate(InplaceTransform):
     def __init__(self, label, **kwargs):
+        super().__init__()
         self.label = label
         self.method = 'linear'
         self.kwargs = kwargs
@@ -183,6 +194,7 @@ class FillInterpolate(InplaceTransform):
 
 class DropNA(InplaceTransform):
     def __init__(self, label):
+        super().__init__()
         self.label = label
 
     def encodes(self, df: pd.DataFrame):

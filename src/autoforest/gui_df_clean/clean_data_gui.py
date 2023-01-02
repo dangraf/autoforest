@@ -117,7 +117,7 @@ def show_fillna(stobj):
         all = {'': None,
                'Na As Category': FillNaAsCategory,
                'Random Sampling': FillRandomSampling,
-               'Median': Fill_Median,
+               'Median': FillMedian,
                'Mean': FillMean,
                'Fill Fwd': FillFwd,
                'Fill Bwd': FillBwd,
