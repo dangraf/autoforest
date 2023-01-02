@@ -87,11 +87,10 @@ def show_navigation_buttons(strobj):
         df = get_df()
         df.to_feather(output)
         st.download_button(
-            "Press to Download",
-            output,
-            "dataframe.feather",
-            "feather",
-            key='download-feather')
+            label="Press to Download",
+            data=output,
+            file_name="dataframe.feather",
+            mime="feather")
 
     col1, col2 = strobj.columns(2)
     col_index = get_col_index()
@@ -114,24 +113,24 @@ def show_fillna(stobj):
             '## Missing values\n',
             'Please use sampling methods below to fill missing values, note the "drop-na" method cant be undone')
         dtype = get_col_type()
-        all = {'': None,
-               'Na As Category': FillNaAsCategory,
-               'Random Sampling': FillRandomSampling,
-               'Median': FillMedian,
-               'Mean': FillMean,
-               'Fill Fwd': FillFwd,
-               'Fill Bwd': FillBwd,
-               'FillConstant': FillConstant,
-               'Interpolate': FillInterpolate,
-               'drop rows NA': DropNA}
+        op_list = {'': None,
+                   'Na As Category': FillNaAsCategory,
+                   'Random Sampling': FillRandomSampling,
+                   'Median': FillMedian,
+                   'Mean': FillMean,
+                   'Fill Fwd': FillFwd,
+                   'Fill Bwd': FillBwd,
+                   'FillConstant': FillConstant,
+                   'Interpolate': FillInterpolate,
+                   'drop rows NA': DropNA}
         # Nan values does only not exist for int-values
         exclude_lookup = {NormalizedDtype.Float.value: ['Na As Category'],
                           NormalizedDtype.Categorical: ['Mean', 'Interpolate'],
                           NormalizedDtype.Datetime: ['Na As Category', 'Mean']}
-        options = [value for value in all.keys() if value not in exclude_lookup[dtype.value]]
+        options = [value for value in op_list.keys() if value not in exclude_lookup[dtype.value]]
 
         option = stobj.selectbox('NA sampeling func', options=options)
-        operation = all[option]
+        operation = op_list[option]
         label = get_label()
         kwargs = {'label': label}
         if option == 'FillConstant':
@@ -144,6 +143,9 @@ def show_fillna(stobj):
             df = tfm.encodes(df)
             add_operation(tfm)
         set_df(df)
+
+        # to update statistics in headers
+        st.experimental_rerun()
 
 
 def start_gui():
