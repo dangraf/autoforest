@@ -12,7 +12,10 @@ __all__ = ['get_label',
            'CleanState',
            'init_states',
            'set_backup_df',
-           'get_backup_df']
+           'get_backup_df',
+           'get_col_type']
+
+from autoforest.clean_data import NormalizedDtype
 
 
 class CleanState(Enum):
@@ -61,6 +64,24 @@ def get_backup_df() -> pd.DataFrame:
     return st.session_state['df_backup']
 
 
+def get_col_type() -> NormalizedDtype:
+    label = get_label()
+    df = get_df()
+    return NormalizedDtype.get_normalized_dtype(df[label].dtype)
+
+
+def add_operation(obj):
+    label = get_label()
+    ops = get_operations()
+    ops.append(obj)
+    st.session_state['operations'][label] = ops
+
+
+def get_operations():
+    label = get_label()
+    return st.session_state['operations'].get(label, [])
+
+
 def init_states():
     if 'state' not in st.session_state:
         st.session_state['state'] = CleanState.SEL_FILE
@@ -70,3 +91,5 @@ def init_states():
         st.session_state['df'] = pd.DataFrame()
     if 'df_backup' not in st.session_state:
         st.session_state['df_backup'] = pd.DataFrame()
+    if 'operations' not in st.session_state:
+        st.session_state['operations'] = dict()

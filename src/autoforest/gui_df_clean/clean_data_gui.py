@@ -9,6 +9,8 @@ from io import BytesIO
 
 __all__ = ['run_state_machine']
 
+from autoforest.operations import *
+
 
 def read_dataframe(uploaded_file):
     p = Path(uploaded_file.name)
@@ -53,7 +55,7 @@ def show_header(stobj):
     na_pct = num_na.sum() / len(df) * 100
     ntype = NormalizedDtype.get_normalized_dtype(df[label].dtype)
     if ntype.value == NormalizedDtype.Int.value or \
-            ntype.value == NormalizedDtype.Float.value :
+            ntype.value == NormalizedDtype.Float.value:
         inf_mask = get_inf_mask(df, label)
         inf_pct = inf_mask.sum() / len(df) * 100
 
@@ -72,12 +74,12 @@ def show_header(stobj):
 
 
 def show_navigation_buttons(strobj):
-    col1, col2  =strobj.columns(2)
+    col1, col2 = strobj.columns(2)
     if col1.button('reset data'):
         label = get_label()
         df = get_df()
         orig_df = get_backup_df()
-        df[label]  = orig_df[label]
+        df[label] = orig_df[label]
         st.experimental_rerun()
 
     if col2.button('save dataframe'):
@@ -102,7 +104,6 @@ def show_navigation_buttons(strobj):
         st.experimental_rerun()
 
 
-
 def show_fillna(stobj):
     label = get_label()
     df = get_df()
@@ -112,15 +113,34 @@ def show_fillna(stobj):
         stobj.write(
             '## Missing values\n',
             'Please use sampling methods below to fill missing values, note the "drop-na" method cant be undone')
-        option = stobj.selectbox('NA sampeling func',
-                                 options=['', 'Random Sampling', 'Median', 'drop rows NA'])
-        if option == 'drop rows NA':
-            df = df[~na_mask].reset_index(drop=True)
-        elif option == 'Median':
-            fill_median(df, label)
-        elif option == 'Random Sampling':
-            fill_random_sampling(df, label)
-        # todo: ffill, bfill, interpolate, mean
+        dtype = get_col_type()
+        all = {'': None,
+               'Na As Category': FillNaAsCategory,
+               'Random Sampling': FillRandomSampling,
+               'Median': Fill_Median,
+               'Mean': FillMean,
+               'Fill Fwd': FillFwd,
+               'Fill Bwd': FillBwd,
+               'FillConstant': FillConstant,
+               'Interpolate': FillInterpolate,
+               'drop rows NA': DropNA}
+        exclude_lookup = {NormalizedDtype.Int.value: ['Na As Category', 'Mean', 'Interpolate'],
+                          NormalizedDtype.Float.value: ['Na As Category'],
+                          NormalizedDtype.Categorical: ['Mean', 'Interpolate'],
+                          NormalizedDtype.Datetime: ['Na As Category', 'Mean']}
+        options = [value for value in all.keys() if value not in exclude_lookup[dtype.value]]
+
+        option = stobj.selectbox('NA sampeling func', options=options)
+        operation = all[option]
+        label = get_label()
+        kwargs = {'label': label}
+        if option == 'FillConstant':
+            operation = None
+            # todo, add form to submit answer
+            # todo check type and cast input to current type
+            pass
+
+
         set_df(df)
 
 

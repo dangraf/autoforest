@@ -1,18 +1,24 @@
 from fastcore.all import Transform, InplaceTransform
 import pandas as pd
+# same types as df_shring_dtypes to be able to cast result to correct value
+from numpy import int8, int16, int32, int64
+from numpy import uint8, uint16, uint32, uint64
+from numpy import float32, float64, longdouble
+
 from autoforest.clean_data import get_na_mask
 
 __all__ = ['Normalize',
-           'FillNaAsCategory',
            'ReorderCategories',
            'SetDType',
+           'FillNaAsCategory',
            'Fill_Median',
            'FillRandomSampling',
            'FillFwd',
            'FillBwd',
            'FillMean',
            'FillInterpolate',
-           'FillConstant']
+           'FillConstant',
+           'DropNA']
 
 
 class SetDType(InplaceTransform):
@@ -124,6 +130,7 @@ class FillConstant(InplaceTransform):
         self.constant = constant
 
     def encodes(self, df: pd.DataFrame):
+        self.constant = eval(df[self.label].dtype.name)(self.constant)
         _add_na_column(df, self.label)
         na_mask = get_na_mask()
         df.loc[na_mask, self.label] = self.constant
@@ -163,4 +170,13 @@ class FillInterpolate(InplaceTransform):
     def encodes(self, df: pd.DataFrame):
         _add_na_column(df, self.label)
         df[self.label].interpolate(method=self.method, inplace=True, **self.kwargs)
+        return df
+
+
+class DropNA(InplaceTransform):
+    def __init__(self, label):
+        self.label = label
+
+    def encodes(self, df: pd.DataFrame):
+        df.dropna(subset=[self.label], axis='index', inplace=True)
         return df
