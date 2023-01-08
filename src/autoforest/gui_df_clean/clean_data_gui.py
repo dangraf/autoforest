@@ -33,8 +33,19 @@ def show_type_conversion(stobj):
     df = get_df()
 
     def try_convert():
-        df[label] = NormalizedDtype.try_convert(column=df[label],
-                                                stype=st.session_state.try_convert)
+        print('trying to convert')
+        cast_tfm = SetDType(label=label, dtype=st.session_state.try_convert)
+        try:
+            df = get_df()
+            df = cast_tfm.encodes(df)
+            set_df(df)
+            replace_operation(cast_tfm)
+        except BaseException as e:
+            print(f'error {e}')
+            pass
+
+        #df[label] = NormalizedDtype.try_convert(column=df[label],
+        #                                        stype=st.session_state.try_convert)
 
     stobj.selectbox(label='Column Type:',
                     options=NormalizedDtype.get_list_of_types(),
@@ -71,6 +82,12 @@ def show_header(stobj):
         stobj.dataframe(df[~na_mask][label].iloc[:5])
     except BaseException as e:
         stobj.write(f"Error plotting dataframe: {e}")
+    s = ""
+    for p in get_operations():
+        s += s + p.name + "->"
+    s = s[:-2]
+    stobj.write('Pipeline:')
+    stobj.write(s)
 
 
 def show_navigation_buttons(strobj):
@@ -192,5 +209,6 @@ def run_state_machine():
 
 
 if __name__ == "__main__":
+    init_states()
     st.set_page_config(layout="wide")
     run_state_machine()

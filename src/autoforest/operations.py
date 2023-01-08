@@ -26,7 +26,7 @@ class SetDType(InplaceTransform):
     def __init__(self, label: str, dtype: str):
         super().__init__()
         self.label = label
-        self.dtype = dtype
+        self.dtype = dtype.lower()
 
     def encodes(self, df: pd.DataFrame):
         df[self.label] = df[self.label].astype(self.dtype)

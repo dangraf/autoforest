@@ -15,7 +15,8 @@ __all__ = ['get_label',
            'get_backup_df',
            'get_col_type',
            'add_operation',
-           'get_operations']
+           'get_operations',
+           'replace_operation']
 
 from autoforest.clean_data import NormalizedDtype
 
@@ -83,6 +84,12 @@ def get_operations():
     label = get_label()
     return st.session_state['operations'].get(label, [])
 
+def replace_operation(obj):
+    ops = get_operations()
+    if len(ops)>0 and ops[-1].name == obj.name:
+        ops[-1] = obj
+    else:
+        add_operation(obj)
 
 def init_states():
     if 'state' not in st.session_state:
@@ -92,6 +99,8 @@ def init_states():
     if 'df' not in st.session_state:
         st.session_state['df'] = pd.DataFrame()
     if 'df_backup' not in st.session_state:
+        print('adding df_backup')
         st.session_state['df_backup'] = pd.DataFrame()
     if 'operations' not in st.session_state:
+        print('adding operations')
         st.session_state['operations'] = dict()
