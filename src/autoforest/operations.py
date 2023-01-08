@@ -19,7 +19,7 @@ __all__ = ['Normalize',
            'FillMean',
            'FillInterpolate',
            'FillConstant',
-           'DropNA']
+           'DropNA',]
 
 
 class SetDType(InplaceTransform):
@@ -31,6 +31,8 @@ class SetDType(InplaceTransform):
     def encodes(self, df: pd.DataFrame):
         df[self.label] = df[self.label].astype(self.dtype)
         return df
+    def __repr__(self):
+        return f"{self.name} {self.dtype}"
 
 
 class Normalize(InplaceTransform):
@@ -50,6 +52,8 @@ class Normalize(InplaceTransform):
     def decodes(self, df: pd.DataFrame):
         df[self.label] = df[self.label] * self.std + self.mean
         return df
+    def __repr__(self):
+        return f"{self.name} std: {self.std:.2f} mean: {self.mean:.2f}"
 
 
 def _add_na_column(df, label):
@@ -80,33 +84,42 @@ class FillMedian(InplaceTransform):
     def __init__(self, label: str):
         super().__init__()
         self.label = label
+        self.median = None
 
     def encodes(self, df):
         _add_na_column(df, self.label)
         na = get_na_mask(df, self.label)
         df_notna = df[~na]
-        idx = len(df_notna) // 2
-        median = df_notna[self.label].sort_values().values[idx]
-        df.loc[na, self.label] = median
+        if self.median is None:
+            idx = len(df_notna) // 2
+            median = df_notna[self.label].sort_values().values[idx]
+            self.median = median
+        df.loc[na, self.label] = self.median
         return df
+    def __repr__(self):
+        return f"{self.name} {self.median}"
 
 
 class FillMean(InplaceTransform):
     def __init__(self, label: str):
         super().__init__()
         self.label = label
+        self.mean = None
 
     def encodes(self, df):
         _add_na_column(df, self.label)
         na = get_na_mask(df, self.label)
         df_notna = df[~na]
-        mean = df_notna[self.label].mean()
-        df.loc[na, self.label] = mean
+        if self.mean is None:
+            self.mean = df_notna[self.label].mean()
+        df.loc[na, self.label] = self.mean
         return df
+    def __repr__(self):
+        return f"{self.name} {self.mean:.2f}"
 
 
 class FillRandomSampling(InplaceTransform):
-    def __init(self, label: str):
+    def __init__(self, label):
         super().__init__()
         self.label = label
 
@@ -131,6 +144,9 @@ class ReorderCategories(InplaceTransform):
         df[self.label].cat.reorder_categories(self.categories)
         return df
 
+    def __repr__(self):
+        return f"{self.name} {self.categories}"
+
 
 class FillConstant(InplaceTransform):
     def __init__(self, label, constant):
@@ -144,6 +160,9 @@ class FillConstant(InplaceTransform):
         na_mask = get_na_mask(df, self.label)
         df.loc[na_mask, self.label] = self.constant
         return df
+
+    def __repr__(self):
+        return f"{self.name} {self.constant}"
 
 
 class FillFwd(InplaceTransform):

@@ -16,7 +16,8 @@ __all__ = ['get_label',
            'get_col_type',
            'add_operation',
            'get_operations',
-           'replace_operation']
+           'replace_operation',
+           'clear_operations']
 
 from autoforest.clean_data import NormalizedDtype
 
@@ -84,12 +85,19 @@ def get_operations():
     label = get_label()
     return st.session_state['operations'].get(label, [])
 
+
 def replace_operation(obj):
     ops = get_operations()
-    if len(ops)>0 and ops[-1].name == obj.name:
+    if len(ops) > 0 and ops[-1].name == obj.name:
         ops[-1] = obj
     else:
         add_operation(obj)
+
+
+def clear_operations():
+    label = get_label()
+    st.session_state['operations'][label] = list()
+
 
 def init_states():
     if 'state' not in st.session_state:

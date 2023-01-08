@@ -44,7 +44,7 @@ def show_type_conversion(stobj):
             print(f'error {e}')
             pass
 
-        #df[label] = NormalizedDtype.try_convert(column=df[label],
+        # df[label] = NormalizedDtype.try_convert(column=df[label],
         #                                        stype=st.session_state.try_convert)
 
     stobj.selectbox(label='Column Type:',
@@ -97,6 +97,7 @@ def show_navigation_buttons(strobj):
         df = get_df()
         orig_df = get_backup_df()
         df[label] = orig_df[label]
+        clear_operations()
         st.experimental_rerun()
 
     if col2.button('save dataframe'):
@@ -144,25 +145,35 @@ def show_fillna(stobj):
         exclude_lookup = {NormalizedDtype.Float.value: ['Na As Category'],
                           NormalizedDtype.Categorical: ['Mean', 'Interpolate'],
                           NormalizedDtype.Datetime: ['Na As Category', 'Mean']}
-        options = [value for value in op_list.keys() if value not in exclude_lookup[dtype.value]]
+        options = [value for value in op_list.keys() if value not in exclude_lookup.get(dtype.value, [])]
+        cols = st.columns([5,1])
+        selection = cols[0].selectbox('NA sampeling func', options=options, key='na_selectbox')
+        button =  cols[1].button('appy NA')
 
-        option = stobj.selectbox('NA sampeling func', options=options)
-        operation = op_list[option]
+        operation = op_list[selection]
         label = get_label()
         kwargs = {'label': label}
-        if option == 'FillConstant':
+        if selection == 'FillConstant':
             operation = None
             # todo, add form to submit answer
             pass
 
-        if operation is not None:
-            tfm = option(**kwargs)
+        if button and operation is not None:
+            tfm = operation(**kwargs)
             df = tfm.encodes(df)
             add_operation(tfm)
-        set_df(df)
+            set_df(df)
+            try:
+                print(st.session_state.na_selectbox)
+                st.session_state.na_selectbox = options[0]
+                print('selection-box set')
+            except:
+                print('empty ')
+                pass
+            st.experimental_rerun()
 
         # to update statistics in headers
-        st.experimental_rerun()
+        # st.experimental_rerun()
 
 
 def start_gui():
