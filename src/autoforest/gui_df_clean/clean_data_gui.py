@@ -28,14 +28,20 @@ def read_dataframe(uploaded_file):
     return df
 
 
-def show_type_conversion(stobj):
-    label = get_label()
-    df = get_df()
+convert_options = NormalizedDtype.get_list_of_types()
 
-    def try_convert():
-        print('trying to convert')
-        cast_tfm = SetDType(label=label, dtype=st.session_state.try_convert)
+
+def show_type_conversion(stobj):
+    global convert_options
+    label = get_label()
+
+    cols = stobj.columns([3, 1])
+    print(NormalizedDtype.get_list_of_types())
+    selection = cols[0].selectbox(label='Change Column Type:',
+                                  options=NormalizedDtype.get_list_of_types())
+    if cols[1].button('convert') and selection != ' ':
         try:
+            cast_tfm = SetDType(label=label, dtype=selection)
             df = get_df()
             df = cast_tfm.encodes(df)
             set_df(df)
@@ -44,23 +50,21 @@ def show_type_conversion(stobj):
             print(f'error {e}')
             pass
 
-        # df[label] = NormalizedDtype.try_convert(column=df[label],
-        #                                        stype=st.session_state.try_convert)
-
-    stobj.selectbox(label='Column Type:',
-                    options=NormalizedDtype.get_list_of_types(),
-                    index=NormalizedDtype.get_index_from_dtype(df[label].dtype),
-                    on_change=try_convert,
-                    key='try_convert')
     return
+
+
+def small_font(mystr: str):
+    return f"<p class='small-font'>{mystr}</p>"
 
 
 def show_header(stobj):
     df = get_df()
     label = get_label()
     col_index = get_col_index()
+    cols = stobj.columns(2)
+    cols[0].metric('Column:', f"{df.columns[col_index]}")
+    cols[1].metric('index:', f"{col_index}/{len(df.columns)}")
 
-    stobj.write(f"# {df.columns[col_index]} {col_index}/{len(df.columns)}")
     na_mask = get_na_mask(df, label)
     num_na = na_mask.sum()
     na_pct = num_na.sum() / len(df) * 100
@@ -71,26 +75,51 @@ def show_header(stobj):
         inf_pct = inf_mask.sum() / len(df) * 100
 
         stobj.write(f"**dtype:** {df[label].dtype.name}")
-        stobj.write(f"**NaN values:** {na_pct:.2f}% num: {num_na}")
-        stobj.write(f"**Inf values:** {inf_pct:.2f}%: num: {inf_mask.sum()}")
-        stobj.write(f"**min:** {df[label].min():.2f} **max:** {df[label].max():.2f}")
-        stobj.write(f"**std:** {df[label].std():.2f} **mean:** {df[label].mean():.2f}")
+        cols = stobj.columns(2)
+        cols[0].write(f"**NaN values:** {na_pct:.2f}%")
+        cols[1].write(f"**num:** {num_na}")
+
+        cols = stobj.columns(2)
+        cols[0].write(f"**Inf values:** {inf_pct:.2f}%")
+        cols[1].write(f"**num:** {inf_mask.sum()}")
+
+        cols = stobj.columns(2)
+        cols[0].write(f"**min:** {df[label].min():.2f}")
+        cols[1].write(f"**max:**  {df[label].max():.2f}")
+
+        cols[0].write(f"**std:** {df[label].std():.2f}")
+        cols[1].write(f"**mean**, {df[label].mean():.2f}")
     else:
-        stobj.write(f" **dtype:** {df[label].dtype.name},\n {na_pct:.2f}% NaN values")
+        cols = stobj.columns(2)
+        cols[0].write(f"**dtype:** {df[label].dtype.name}")
+        cols[1].write(f"**NaN values:** {na_pct:.2f}% ")
 
     try:
-        stobj.dataframe(df[~na_mask][label].iloc[:5])
+        cols = stobj.columns(2)
+        cols[0].dataframe(df[~na_mask][label].iloc[:5])
+        cols[1].dataframe(df[~na_mask][label].iloc[-5:])
+
     except BaseException as e:
-        stobj.write(f"Error plotting dataframe: {e}")
+        stobj.metric("Error", "plotting dataframe: {e}")
     s = ""
     for p in get_operations():
-        s += s + p.name + "->"
+        s += s + str(p) + "->"
     s = s[:-2]
-    stobj.write('Pipeline:')
-    stobj.write(s)
+    stobj.write('Pipeline:', s)
 
 
 def show_navigation_buttons(strobj):
+    col1, col2 = strobj.columns(2)
+    col_index = get_col_index()
+    if col2.button('next'):
+        set_col_index(col_index + 1)
+        # testa att ändra värdet på
+        # st.experimental_rerun()
+
+    if col1.button('prev'):
+        set_col_index(col_index - 1)
+        # st.experimental_rerun()
+
     col1, col2 = strobj.columns(2)
     if col1.button('reset data'):
         label = get_label()
@@ -98,7 +127,7 @@ def show_navigation_buttons(strobj):
         orig_df = get_backup_df()
         df[label] = orig_df[label]
         clear_operations()
-        st.experimental_rerun()
+        # st.experimental_rerun()
 
     if col2.button('save dataframe'):
         output = BytesIO()
@@ -109,16 +138,6 @@ def show_navigation_buttons(strobj):
             data=output,
             file_name="dataframe.feather",
             mime="feather")
-
-    col1, col2 = strobj.columns(2)
-    col_index = get_col_index()
-    if col2.button('next'):
-        set_col_index(col_index + 1)
-        st.experimental_rerun()
-
-    if col1.button('prev'):
-        set_col_index(col_index - 1)
-        st.experimental_rerun()
 
 
 def show_fillna(stobj):
@@ -146,9 +165,9 @@ def show_fillna(stobj):
                           NormalizedDtype.Categorical: ['Mean', 'Interpolate'],
                           NormalizedDtype.Datetime: ['Na As Category', 'Mean']}
         options = [value for value in op_list.keys() if value not in exclude_lookup.get(dtype.value, [])]
-        cols = st.columns([5,1])
+        cols = st.columns([5, 1])
         selection = cols[0].selectbox('NA sampeling func', options=options, key='na_selectbox')
-        button =  cols[1].button('appy NA')
+        button = cols[1].button('appy NA')
 
         operation = op_list[selection]
         label = get_label()
@@ -165,12 +184,10 @@ def show_fillna(stobj):
             set_df(df)
             try:
                 print(st.session_state.na_selectbox)
-                st.session_state.na_selectbox = options[0]
-                print('selection-box set')
             except:
                 print('empty ')
                 pass
-            st.experimental_rerun()
+            # st.experimental_rerun()
 
         # to update statistics in headers
         # st.experimental_rerun()
@@ -184,27 +201,28 @@ def start_gui():
         set_backup_df(df)
         set_state(CleanState.ITERATE_COLUMNS)
         set_col_index(0)
-        st.experimental_rerun()
+        # st.experimental_rerun()
 
 
 def iterate_columns():
-    show_header(st.sidebar)
     show_type_conversion(st.sidebar)
-    show_fillna(st)
+    # show_fillna(st)
 
     df = get_df()
     label = get_label()
     ntype = NormalizedDtype.get_normalized_dtype(df[label].dtype)
+    show_navigation_buttons(st.sidebar)
+    show_header(st.sidebar)
     print(ntype.value)
     if ntype.value == NormalizedDtype.Categorical.value:
         print('Enter Categorical')
-        show_categorigal_stats()
+        # show_categorigal_stats()
     else:
         try:
-            show_continuous_stats()
+            pass
+            # show_continuous_stats()
         except BaseException as e:
             st.write(f"error plotting: {e}")
-    show_navigation_buttons(st.sidebar)
 
 
 def run_state_machine():
@@ -222,4 +240,11 @@ def run_state_machine():
 if __name__ == "__main__":
     init_states()
     st.set_page_config(layout="wide")
+    st.markdown("""
+    <style>
+    .small-font {
+        font-size:12px !important;
+    }
+    </style>
+    """, unsafe_allow_html=True)
     run_state_machine()

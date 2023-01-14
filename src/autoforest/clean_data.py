@@ -23,7 +23,8 @@ class NormalizedDtype(Enum):
 
     @staticmethod
     def get_list_of_types():
-        return [v.name for v in NormalizedDtype]
+        l = [v.name for v in NormalizedDtype]
+        return [' '] + l
 
     @staticmethod
     def get_index_from_dtype(dtype):

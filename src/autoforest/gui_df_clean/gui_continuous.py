@@ -31,7 +31,7 @@ def show_operations(df: pd.DataFrame, label):
             mean = df[label].mean()
             df[label] = (df[label] - mean) / std
         elif s == 'replace':
-            with st.form("replace value"):
+            with st.form("replace value", clear_on_submit=True):
                 target = st.text_input('Replace value:')
                 new_value = st.text_input('with:')
                 submitted = st.form_submit_button("Replace")
