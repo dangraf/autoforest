@@ -5,10 +5,15 @@ from numpy import int8, int16, int32, int64
 from numpy import uint8, uint16, uint32, uint64
 from numpy import float32, float64, longdouble
 import numpy as np
+import streamlit as st
 
 from autoforest.clean_data import get_na_mask
 
-__all__ = ['Normalize',
+__all__ = ['BaseTransform',
+           'TfmNormalize',
+           'TfmReplace',
+           'TfmExp',
+           'TfmLog',
            'ReorderCategories',
            'SetDType',
            'FillNaAsCategory',
@@ -22,9 +27,22 @@ __all__ = ['Normalize',
            'DropNA', ]
 
 
-class SetDType(InplaceTransform):
-    def __init__(self, label: str, dtype: str):
+class BaseTransform(InplaceTransform):
+    def __init__(self, label):
         super().__init__()
+        self.label = label
+
+    def __repr__(self):
+        return f"{self.name}"
+
+    @classmethod
+    def show_form(cls, stobj: st, label: str):
+        return cls(label)
+
+
+class SetDType(BaseTransform):
+    def __init__(self, label: str, dtype: str):
+        super().__init__(label)
         self.label = label
         self.dtype = dtype.lower()
 
@@ -36,10 +54,64 @@ class SetDType(InplaceTransform):
         return f"{self.name} {self.dtype}"
 
 
-class Normalize(InplaceTransform):
+class TfmReplace(BaseTransform):
+    def __init__(self, label, target_val, new_val):
+        super().__init__(label)
+        self.tval = int(target_val)
+        self.rval = int(new_val)
+
+    def encodes(self, df: pd.DataFrame):
+        filt = df[self.label] == self.tval
+        df.loc[filt, self.label] = self.rval
+        return df
+
+    def __repr__(self):
+        return f"{self.name} {self.tval}>>{self.rval}"
+
+    @classmethod
+    def show_form(cls, stobj: st, label: str):
+        """
+        returns tfmReplace-object
+        """
+        with stobj.form("replace value", clear_on_submit=True):
+            target = stobj.text_input('Replace value:')
+            new_value = stobj.text_input('with:')
+            submitted = stobj.form_submit_button("Replace")
+            if submitted:
+                return TfmReplace(label=label, target_val=target, new_val=new_value)
+
+
+class TfmExp(BaseTransform):
+
+    def encodes(self, df: pd.DataFrame):
+        df[self.label] = np.exp(df[self.label])
+        return df
+
+    def decode(self, df: pd.DataFrame):
+        df[self.label] = np.log(df[self.label])
+        return df
+
+
+class TfmLog(BaseTransform):
+    def __init__(self, label, epsilon=1e-3):
+        super().__init__(label)
+        self.epsilon = epsilon
+
+    def encodes(self, df: pd.DataFrame):
+        df[self.label] = np.log(df[self.label] + self.epsilon)
+        return df
+
+    def decodes(self, df: pd.DataFrame):
+        df[self.label] = np.exp(df[self.label]) - self.epsilon
+        return df
+
+    def __repr__(self):
+        return f"{self.name}, epsilon:{self.epsilon}"
+
+
+class TfmNormalize(BaseTransform):
     def __init__(self, label: str, std: float = None, mean: float = None):
-        super().__init__()
-        self.label = label
+        super().__init__(label)
         self.std = std
         self.mean = mean
 
@@ -65,10 +137,7 @@ def _add_na_column(df, label):
         df[na_label] = na
 
 
-class FillNaAsCategory(InplaceTransform):
-    def __init__(self, label):
-        super().__init__()
-        self.label = label
+class FillNaAsCategory(BaseTransform):
 
     def encodes(self, df: pd.DataFrame):
         cats = list(df[self.label].cat.categories)
@@ -82,10 +151,9 @@ class FillNaAsCategory(InplaceTransform):
         return df
 
 
-class FillMedian(InplaceTransform):
+class FillMedian(BaseTransform):
     def __init__(self, label: str):
-        super().__init__()
-        self.label = label
+        super().__init__(label)
         self.median = None
 
     def encodes(self, df):
@@ -103,10 +171,9 @@ class FillMedian(InplaceTransform):
         return f"{self.name} {self.median}"
 
 
-class FillMean(InplaceTransform):
+class FillMean(BaseTransform):
     def __init__(self, label: str):
-        super().__init__()
-        self.label = label
+        super().__init__(label)
         self.mean = None
 
     def encodes(self, df):
@@ -122,10 +189,9 @@ class FillMean(InplaceTransform):
         return f"{self.name} {self.mean:.2f}"
 
 
-class FillRandomSampling(InplaceTransform):
-    def __init__(self, label):
-        super().__init__()
-        self.label = label
+class FillRandomSampling(BaseTransform):
+
+    # todo, add values in object to sample from
 
     def encodes(self, df):
         _add_na_column(df, self.label)
@@ -139,10 +205,9 @@ class FillRandomSampling(InplaceTransform):
         return f"{self.name}"
 
 
-class ReorderCategories(InplaceTransform):
+class ReorderCategories(BaseTransform):
     def __init__(self, label, categories):
-        super().__init__()
-        self.label = label
+        super().__init__(label)
         self.categories = categories
 
     def encodes(self, df: pd.DataFrame):
@@ -155,10 +220,9 @@ class ReorderCategories(InplaceTransform):
         return f"{self.name} {self.categories}"
 
 
-class FillConstant(InplaceTransform):
+class FillConstant(BaseTransform):
     def __init__(self, label, constant):
-        super().__init__()
-        self.label = label
+        super().__init__(label)
         self.constant = constant
 
     def encodes(self, df: pd.DataFrame):
@@ -171,11 +235,16 @@ class FillConstant(InplaceTransform):
     def __repr__(self):
         return f"{self.name} {self.constant}"
 
+    @classmethod
+    def show_form(cls, stobj: st, label:str):
+        with stobj.form("Fill Constant Value", clear_on_submit=True):
+            const = stobj.text_input('Value:')
+            submitted = stobj.form_submit_button("Replace")
+            if submitted:
+                return FillConstant(label=label, constant=const)
 
-class FillFwd(InplaceTransform):
-    def __init__(self, label):
-        super().__init__()
-        self.label = label
+
+class FillFwd(BaseTransform):
 
     def encodes(self, df: pd.DataFrame):
         _add_na_column(df, self.label)
@@ -187,10 +256,7 @@ class FillFwd(InplaceTransform):
         return f"{self.name}"
 
 
-class FillBwd(InplaceTransform):
-    def __init__(self, label):
-        super().__init__()
-        self.label = label
+class FillBwd(BaseTransform):
 
     def encodes(self, df: pd.DataFrame):
         _add_na_column(df, self.label)
@@ -202,10 +268,9 @@ class FillBwd(InplaceTransform):
         return f"{self.name}"
 
 
-class FillInterpolate(InplaceTransform):
+class FillInterpolate(BaseTransform):
     def __init__(self, label, **kwargs):
-        super().__init__()
-        self.label = label
+        super().__init__(label)
         self.method = 'linear'
         self.kwargs = kwargs
 
@@ -227,10 +292,7 @@ class FillInterpolate(InplaceTransform):
         return f"{self.name} {self.method}, {self.kwargs}"
 
 
-class DropNA(InplaceTransform):
-    def __init__(self, label):
-        super().__init__()
-        self.label = label
+class DropNA(BaseTransform):
 
     def encodes(self, df: pd.DataFrame):
         df.dropna(subset=[self.label], axis='index', inplace=True)

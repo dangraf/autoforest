@@ -4,10 +4,12 @@ import matplotlib.pyplot as plt
 import streamlit as st
 import pandas as pd
 import numpy as np
+from autoforest.operations import *
 
 __all__ = ['show_continuous_stats']
 PLOT_FONT_SIZE = 4
 PLOT_NUM_BINS = 60
+
 
 # todo, show stats, min, max, skew, std, mean, median
 def show_operations(df: pd.DataFrame, label):
@@ -31,20 +33,29 @@ def show_operations(df: pd.DataFrame, label):
             mean = df[label].mean()
             df[label] = (df[label] - mean) / std
         elif s == 'replace':
-            with st.form("replace value", clear_on_submit=True):
-                target = st.text_input('Replace value:')
-                new_value = st.text_input('with:')
-                submitted = st.form_submit_button("Replace")
-                if submitted:
-                    target = int(target)
-                    new_value = int(new_value)
-                    mask = df[label] == target
-                    repl_mask = "{label}_replaces"
-                    if repl_mask in df.columns:
-                        mask = df[repl_mask] | mask
-                    # add column in dataframe telling which values we have replaced
-                    df[repl_mask] = mask
-                    df.loc[mask, label] = new_value
+            #with st.form("replace value", clear_on_submit=True):
+            kwargs = {'label': label}
+            op = TfmReplace.show_form(st, kwargs)
+            if op:
+                try:
+                    df = op.encodes(df)
+                    add_operation(op)
+                    set_df(df)
+                except BaseException as e:
+                    print(f'Error{e}')
+                # target = st.text_input('Replace value:')
+                # new_value = st.text_input('with:')
+                # submitted = st.form_submit_button("Replace")
+                # if submitted:
+                #    target = int(target)
+                #    new_value = int(new_value)
+                #    mask = df[label] == target
+                #    repl_mask = f"{label}_replaces"
+                #    if repl_mask in df.columns:
+                #        mask = df[repl_mask] | mask
+                # add column in dataframe telling which values we have replaced
+                #    df[repl_mask] = mask
+                #    df.loc[mask, label] = new_value
 
 
 def show_continuous_stats():

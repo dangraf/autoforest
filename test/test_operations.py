@@ -31,7 +31,7 @@ def test_cast():
 def test_fill_interpolate():
     # fill float
     df = pd.DataFrame({'a': [1, np.nan, 3]})
-    tfm = FillInterpolate('a')
+    tfm = FillInterpolate.show_form(stobj=None, label='a')
     df_after = tfm.encodes(df)
     assert all(df_after['a'].values == [1.0, 2.0, 3.0])
     assert 'a_na' in df_after.columns

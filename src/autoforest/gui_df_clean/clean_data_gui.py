@@ -222,7 +222,7 @@ def iterate_columns():
     label = get_label()
     ntype = NormalizedDtype.get_normalized_dtype(df[label].dtype)
 
-    show_header(st.sidebar)
+
     print(ntype.value)
     if ntype.value == NormalizedDtype.Categorical.value:
         print('Enter Categorical')
@@ -233,6 +233,7 @@ def iterate_columns():
             show_continuous_stats()
         except BaseException as e:
             st.write(f"error plotting: {e}")
+    show_header(st.sidebar)
 
 
 def run_state_machine():
