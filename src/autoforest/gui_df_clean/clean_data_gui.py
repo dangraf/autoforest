@@ -136,6 +136,19 @@ def show_navigation_buttons(strobj):
             file_name="dataframe.feather",
             mime="feather")
 
+def _fill_na(operation, kwargs):
+    tfm = operation(**kwargs)
+    df = get_df()
+    df = tfm.encodes(df)
+    ops = get_operations()
+    if len(ops) > 0:
+        print(f" name: {ops[-1].name}")
+    if len(ops) > 0 and ops[-1].name.startswith('Fill'):
+        # we can only have one fill transform
+        ops[-1] = tfm
+    else:
+        add_operation(tfm)
+    set_df(df)
 
 def show_fillna(stobj):
     label = get_label()
@@ -163,34 +176,26 @@ def show_fillna(stobj):
                           NormalizedDtype.Datetime: ['Na As Category', 'Mean']}
         options = [value for value in op_list.keys() if value not in exclude_lookup.get(dtype.value, [])]
         cols = st.columns([5, 1])
-        selection = cols[0].selectbox('NA sampeling func', options=options, key='na_selectbox')
+        sel_element = cols[0].empty()
+        selection = sel_element.selectbox('NA sampeling func', options=options, key='na_selectbox')
         button = cols[1].button('appy NA')
 
         operation = op_list[selection]
         label = get_label()
         kwargs = {'label': label}
         if selection == 'FillConstant':
-            operation = None
-            # todo, add form to submit answer
-            pass
+            with st.form("Fill Constant Value", clear_on_submit=True):
+                const = st.text_input('Value:')
+                submitted = st.form_submit_button("Replace")
+                if submitted:
+                    kwargs['constant'] = const
+                    _fill_na(operation=operation, kwargs=kwargs)
+
 
         if button and operation is not None:
-            tfm = operation(**kwargs)
-            df = tfm.encodes(df)
-            ops = get_operations()
-            if len(ops)>0:
-                print(f" name: {ops[-1].name}")
-            if len(ops) > 0 and ops[-1].name.startswith('Fill'):
-                # we can only have one fill transform
-                ops[-1] = tfm
-            else:
-                add_operation(tfm)
-            set_df(df)
-            try:
-                print(st.session_state.na_selectbox)
-            except:
-                print('empty ')
-                pass
+            _fill_na(operation=operation, kwargs=kwargs)
+
+
             # st.experimental_rerun()
 
         # to update statistics in headers
@@ -221,11 +226,11 @@ def iterate_columns():
     print(ntype.value)
     if ntype.value == NormalizedDtype.Categorical.value:
         print('Enter Categorical')
-        # show_categorigal_stats()
+        show_categorigal_stats()
     else:
         try:
             pass
-            # show_continuous_stats()
+            show_continuous_stats()
         except BaseException as e:
             st.write(f"error plotting: {e}")
 
