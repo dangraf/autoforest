@@ -19,7 +19,7 @@ __all__ = ['Normalize',
            'FillMean',
            'FillInterpolate',
            'FillConstant',
-           'DropNA',]
+           'DropNA', ]
 
 
 class SetDType(InplaceTransform):
@@ -31,6 +31,7 @@ class SetDType(InplaceTransform):
     def encodes(self, df: pd.DataFrame):
         df[self.label] = df[self.label].astype(self.dtype)
         return df
+
     def __repr__(self):
         return f"{self.name} {self.dtype}"
 
@@ -52,6 +53,7 @@ class Normalize(InplaceTransform):
     def decodes(self, df: pd.DataFrame):
         df[self.label] = df[self.label] * self.std + self.mean
         return df
+
     def __repr__(self):
         return f"{self.name} std: {self.std:.2f} mean: {self.mean:.2f}"
 
@@ -96,6 +98,7 @@ class FillMedian(InplaceTransform):
             self.median = median
         df.loc[na, self.label] = self.median
         return df
+
     def __repr__(self):
         return f"{self.name} {self.median}"
 
@@ -114,6 +117,7 @@ class FillMean(InplaceTransform):
             self.mean = df_notna[self.label].mean()
         df.loc[na, self.label] = self.mean
         return df
+
     def __repr__(self):
         return f"{self.name} {self.mean:.2f}"
 
@@ -130,6 +134,9 @@ class FillRandomSampling(InplaceTransform):
         samples = df_notna[self.label].sample(n=na.sum(), replace=True)
         df.loc[na, self.label] = samples.values
         return df
+
+    def __repr__(self):
+        return f"{self.name}"
 
 
 class ReorderCategories(InplaceTransform):
@@ -176,6 +183,9 @@ class FillFwd(InplaceTransform):
         df[self.label].ffill(inplace=True)
         return df
 
+    def __repr__(self):
+        return f"{self.name}"
+
 
 class FillBwd(InplaceTransform):
     def __init__(self, label):
@@ -187,6 +197,9 @@ class FillBwd(InplaceTransform):
 
         df[self.label].bfill(inplace=True)
         return df
+
+    def __repr__(self):
+        return f"{self.name}"
 
 
 class FillInterpolate(InplaceTransform):
@@ -210,6 +223,9 @@ class FillInterpolate(InplaceTransform):
             df[self.label] = pd.to_datetime(df[self.label], unit='ns')
         return df
 
+    def __repr__(self):
+        return f"{self.name} {self.method}, {self.kwargs}"
+
 
 class DropNA(InplaceTransform):
     def __init__(self, label):
@@ -219,3 +235,6 @@ class DropNA(InplaceTransform):
     def encodes(self, df: pd.DataFrame):
         df.dropna(subset=[self.label], axis='index', inplace=True)
         return df
+
+    def __repr__(self):
+        return f"{self.name}"

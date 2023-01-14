@@ -77,6 +77,7 @@ def get_col_type() -> NormalizedDtype:
 def add_operation(obj):
     label = get_label()
     ops = get_operations()
+    print(f"len ops: {len(ops)}")
     ops.append(obj)
     st.session_state['operations'][label] = ops
 

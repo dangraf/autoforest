@@ -101,11 +101,8 @@ def show_header(stobj):
 
     except BaseException as e:
         stobj.metric("Error", "plotting dataframe: {e}")
-    s = ""
-    for p in get_operations():
-        s += s + str(p) + "->"
-    s = s[:-2]
-    stobj.write('Pipeline:', s)
+    reps = [str(p) for p in get_operations()]
+    stobj.write('Pipeline:', '->'.join(reps))
 
 
 def show_navigation_buttons(strobj):
@@ -180,7 +177,14 @@ def show_fillna(stobj):
         if button and operation is not None:
             tfm = operation(**kwargs)
             df = tfm.encodes(df)
-            add_operation(tfm)
+            ops = get_operations()
+            if len(ops)>0:
+                print(f" name: {ops[-1].name}")
+            if len(ops) > 0 and ops[-1].name.startswith('Fill'):
+                # we can only have one fill transform
+                ops[-1] = tfm
+            else:
+                add_operation(tfm)
             set_df(df)
             try:
                 print(st.session_state.na_selectbox)
@@ -206,12 +210,13 @@ def start_gui():
 
 def iterate_columns():
     show_type_conversion(st.sidebar)
-    # show_fillna(st)
+    show_navigation_buttons(st.sidebar)
+    show_fillna(st)
 
     df = get_df()
     label = get_label()
     ntype = NormalizedDtype.get_normalized_dtype(df[label].dtype)
-    show_navigation_buttons(st.sidebar)
+
     show_header(st.sidebar)
     print(ntype.value)
     if ntype.value == NormalizedDtype.Categorical.value:
