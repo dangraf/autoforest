@@ -110,12 +110,9 @@ def show_navigation_buttons(strobj):
     col_index = get_col_index()
     if col2.button('next'):
         set_col_index(col_index + 1)
-        # testa att ändra värdet på
-        # st.experimental_rerun()
 
     if col1.button('prev'):
         set_col_index(col_index - 1)
-        # st.experimental_rerun()
 
     col1, col2 = strobj.columns(2)
     if col1.button('reset data'):
@@ -124,7 +121,6 @@ def show_navigation_buttons(strobj):
         orig_df = get_backup_df()
         df[label] = orig_df[label]
         clear_operations()
-        # st.experimental_rerun()
 
     if col2.button('save dataframe'):
         output = BytesIO()
@@ -136,19 +132,6 @@ def show_navigation_buttons(strobj):
             file_name="dataframe.feather",
             mime="feather")
 
-def _fill_na(operation, kwargs):
-    tfm = operation(**kwargs)
-    df = get_df()
-    df = tfm.encodes(df)
-    ops = get_operations()
-    if len(ops) > 0:
-        print(f" name: {ops[-1].name}")
-    if len(ops) > 0 and ops[-1].name.startswith('Fill'):
-        # we can only have one fill transform
-        ops[-1] = tfm
-    else:
-        add_operation(tfm)
-    set_df(df)
 
 def show_fillna(stobj):
     label = get_label()
@@ -175,31 +158,26 @@ def show_fillna(stobj):
                           NormalizedDtype.Categorical: ['Mean', 'Interpolate'],
                           NormalizedDtype.Datetime: ['Na As Category', 'Mean']}
         options = [value for value in op_list.keys() if value not in exclude_lookup.get(dtype.value, [])]
-        cols = st.columns([5, 1])
-        sel_element = cols[0].empty()
-        selection = sel_element.selectbox('NA sampeling func', options=options, key='na_selectbox')
-        button = cols[1].button('appy NA')
 
-        operation = op_list[selection]
+        selection = stobj.selectbox('NA sampeling func', options=options, key='na_selectbox')
+
+        operation: BaseTransform = op_list[selection]
         label = get_label()
-        kwargs = {'label': label}
-        if selection == 'FillConstant':
-            with st.form("Fill Constant Value", clear_on_submit=True):
-                const = st.text_input('Value:')
-                submitted = st.form_submit_button("Replace")
-                if submitted:
-                    kwargs['constant'] = const
-                    _fill_na(operation=operation, kwargs=kwargs)
-
-
-        if button and operation is not None:
-            _fill_na(operation=operation, kwargs=kwargs)
-
-
-            # st.experimental_rerun()
-
-        # to update statistics in headers
-        # st.experimental_rerun()
+        tfm = None
+        if operation is not None:
+            tfm = operation.show_form(stobj, label)
+        if tfm:
+            df = get_df()
+            df = tfm.encodes(df)
+            ops = get_operations()
+            if len(ops) > 0:
+                print(f" name: {ops[-1].name}")
+            if len(ops) > 0 and ops[-1].name.startswith('Fill'):
+                # we can only have one fill transform
+                ops[-1] = tfm
+            else:
+                add_operation(tfm)
+            set_df(df)
 
 
 def start_gui():
@@ -210,7 +188,6 @@ def start_gui():
         set_backup_df(df)
         set_state(CleanState.ITERATE_COLUMNS)
         set_col_index(0)
-        # st.experimental_rerun()
 
 
 def iterate_columns():
@@ -221,7 +198,6 @@ def iterate_columns():
     df = get_df()
     label = get_label()
     ntype = NormalizedDtype.get_normalized_dtype(df[label].dtype)
-
 
     print(ntype.value)
     if ntype.value == NormalizedDtype.Categorical.value:

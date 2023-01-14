@@ -17,46 +17,30 @@ def show_operations(df: pd.DataFrame, label):
     # log
     # exp
     # replace
+    op_list = {' ': None,
+               'log': TfmLog,
+               'exp': TfmExp,
+               'normalize': TfmNormalize,
+               'replace': TfmReplace,
+               'add': TfmAdd}
     with st.expander('Operations'):
         if 'float' in df[label].dtype.name:
-            options = [' ', 'log', 'exp', 'normalize', 'reset_ops']
+            options = [' ', 'log', 'exp', 'normalize', 'add']
         else:
-            options = [' ', 'replace', 'reset_ops']
+            options = [' ', 'replace', 'add']
 
         s = st.selectbox(f"Apply operation", options=options)
-        if s == 'log':
-            df[label] = np.log(df[label])
-        elif s == 'exp':
-            df[label] = np.exp(df[label])
-        elif s == 'normalize':
-            std = df[label].std()
-            mean = df[label].mean()
-            df[label] = (df[label] - mean) / std
-        elif s == 'replace':
-            #with st.form("replace value", clear_on_submit=True):
-            kwargs = {'label': label}
-            op = TfmReplace.show_form(st, kwargs)
-            if op:
+
+        operation = op_list[s]
+        if operation is not None:
+            tfm = operation.show_form(stobj=st, label=label)
+            if tfm:
                 try:
-                    df = op.encodes(df)
-                    add_operation(op)
+                    df = tfm.encodes(df)
+                    add_operation(tfm)
                     set_df(df)
                 except BaseException as e:
                     print(f'Error{e}')
-                # target = st.text_input('Replace value:')
-                # new_value = st.text_input('with:')
-                # submitted = st.form_submit_button("Replace")
-                # if submitted:
-                #    target = int(target)
-                #    new_value = int(new_value)
-                #    mask = df[label] == target
-                #    repl_mask = f"{label}_replaces"
-                #    if repl_mask in df.columns:
-                #        mask = df[repl_mask] | mask
-                # add column in dataframe telling which values we have replaced
-                #    df[repl_mask] = mask
-                #    df.loc[mask, label] = new_value
-
 
 def show_continuous_stats():
     df = get_df()

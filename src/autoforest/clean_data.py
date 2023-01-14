@@ -3,7 +3,8 @@ from typing import List
 from enum import Enum
 import re
 
-__all__ = ['df_shrink',
+__all__ = ['cast_val_to_dtype',
+           'df_shrink',
            'is_cat',
            'cont_cat_split',
            'get_na_mask',
@@ -13,6 +14,10 @@ __all__ = ['df_shrink',
            'NormalizedDtype']
 
 import pandas as pd
+
+
+def cast_val_to_dtype(dtype, value):
+    return eval(dtype.name)(value)
 
 
 class NormalizedDtype(Enum):

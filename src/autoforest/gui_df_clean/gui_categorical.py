@@ -32,7 +32,7 @@ def reorder_categories(df: pd.DataFrame, label):
             if i != sel:
                 categories[sel], categories[i] = categories[i], categories[sel]
                 df[label] = df[label].cat.reorder_categories(categories, ordered=True)
-                # st.experimental_rerun()
+                st.experimental_rerun()
                 break
 
 

@@ -7,13 +7,14 @@ from numpy import float32, float64, longdouble
 import numpy as np
 import streamlit as st
 
-from autoforest.clean_data import get_na_mask
+from autoforest.clean_data import get_na_mask, cast_val_to_dtype
 
 __all__ = ['BaseTransform',
            'TfmNormalize',
            'TfmReplace',
            'TfmExp',
            'TfmLog',
+           'TfmAdd',
            'ReorderCategories',
            'SetDType',
            'FillNaAsCategory',
@@ -37,7 +38,8 @@ class BaseTransform(InplaceTransform):
 
     @classmethod
     def show_form(cls, stobj: st, label: str):
-        return cls(label)
+        if stobj.button(f"apply {cls.__name__}"):
+            return cls(label)
 
 
 class SetDType(BaseTransform):
@@ -52,6 +54,31 @@ class SetDType(BaseTransform):
 
     def __repr__(self):
         return f"{self.name} {self.dtype}"
+
+
+class TfmAdd(BaseTransform):
+    def __init__(self, label, const):
+        super().__init__(label)
+        self.const = const
+
+    def encodes(self, df: pd.DataFrame):
+        const = cast_val_to_dtype(df[self.label].dtype, self.const)
+        df[self.label] += const
+
+    def decodes(self, df: pd.DataFrame):
+        const = cast_val_to_dtype(df[self.label].dtype, self.const)
+        df[self.label] -= const
+
+    def __repr__(self):
+        return f"{self.name} {self.const}"
+
+    @classmethod
+    def show_form(cls, stobj: st, label: str):
+        with stobj.form("replace value", clear_on_submit=True):
+            const = stobj.text_input('value to add:')
+            submitted = stobj.form_submit_button("add value")
+            if submitted:
+                return TfmAdd(label=label, const=const)
 
 
 class TfmReplace(BaseTransform):
@@ -226,7 +253,7 @@ class FillConstant(BaseTransform):
         self.constant = constant
 
     def encodes(self, df: pd.DataFrame):
-        self.constant = eval(df[self.label].dtype.name)(self.constant)
+        self.constant = cast_val_to_dtype(df[self.label].dtype, self.const)
         _add_na_column(df, self.label)
         na_mask = get_na_mask(df, self.label)
         df.loc[na_mask, self.label] = self.constant
@@ -236,7 +263,7 @@ class FillConstant(BaseTransform):
         return f"{self.name} {self.constant}"
 
     @classmethod
-    def show_form(cls, stobj: st, label:str):
+    def show_form(cls, stobj: st, label: str):
         with stobj.form("Fill Constant Value", clear_on_submit=True):
             const = stobj.text_input('Value:')
             submitted = stobj.form_submit_button("Replace")
