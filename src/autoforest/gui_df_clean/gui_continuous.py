@@ -34,7 +34,7 @@ def show_operations(df: pd.DataFrame, label):
 
         operation = op_list[s]
         if operation is not None:
-            tfm = operation.show_form(stobj=st, label=label)
+            tfm = operation.show_form(stobj=st, df=None, label=label)
             if tfm:
                 try:
                     df = tfm.encodes(df)

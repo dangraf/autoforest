@@ -165,7 +165,7 @@ def show_fillna(stobj):
         label = get_label()
         tfm = None
         if operation is not None:
-            tfm = operation.show_form(stobj, label)
+            tfm = operation.show_form(stobj, None, label)
         if tfm:
             df = get_df()
             df = tfm.encodes(df)

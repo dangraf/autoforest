@@ -38,7 +38,7 @@ class BaseTransform(InplaceTransform):
         return f"{self.name}"
 
     @classmethod
-    def show_form(cls, stobj: st, label: str):
+    def show_form(cls, stobj: st, df: pd.DataFrame, label: str):
         if stobj.button(f"apply {cls.__name__}"):
             return cls(label)
 
@@ -74,7 +74,7 @@ class TfmAdd(BaseTransform):
         return f"{self.name} {self.const}"
 
     @classmethod
-    def show_form(cls, stobj: st, label: str):
+    def show_form(cls, stobj: st, df: pd.DataFrame, label: str):
         with stobj.form("replace value", clear_on_submit=True):
             const = stobj.text_input('value to add:')
             submitted = stobj.form_submit_button("add value")
@@ -97,7 +97,7 @@ class TfmReplace(BaseTransform):
         return f"{self.name} {self.tval}>>{self.rval}"
 
     @classmethod
-    def show_form(cls, stobj: st, label: str):
+    def show_form(cls, stobj: st, df: pd.DataFrame, label: str):
         """
         returns tfmReplace-object
         """
@@ -122,7 +122,7 @@ class TfmDiff(BaseTransform):
         return f"{self.name}({self.steps})"
 
     @classmethod
-    def show_form(cls, stobj: st, label: str):
+    def show_form(cls, stobj: st, df: pd.DataFrame, label: str):
         target = stobj.text_input('diff steps(int)')
         if stobj.button('apply'):
             steps = int(target)
@@ -135,7 +135,7 @@ class TfmExp(BaseTransform):
         df[self.label] = np.exp(df[self.label])
         return df
 
-    def decode(self, df: pd.DataFrame):
+    def decodes(self, df: pd.DataFrame):
         df[self.label] = np.log(df[self.label])
         return df
 
@@ -274,7 +274,7 @@ class FillConstant(BaseTransform):
         self.constant = constant
 
     def encodes(self, df: pd.DataFrame):
-        self.constant = cast_val_to_dtype(df[self.label].dtype, self.const)
+        self.constant = cast_val_to_dtype(df[self.label].dtype, self.constant)
         _add_na_column(df, self.label)
         na_mask = get_na_mask(df, self.label)
         df.loc[na_mask, self.label] = self.constant
@@ -284,7 +284,7 @@ class FillConstant(BaseTransform):
         return f"{self.name} {self.constant}"
 
     @classmethod
-    def show_form(cls, stobj: st, label: str):
+    def show_form(cls, stobj: st, df: pd.DataFrame, label: str):
         with stobj.form("Fill Constant Value", clear_on_submit=True):
             const = stobj.text_input('Value:')
             submitted = stobj.form_submit_button("Replace")
