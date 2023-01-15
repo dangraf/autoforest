@@ -1,9 +1,9 @@
+from statsmodels.tsa.stattools import adfuller, kpss
 from autoforest.gui_df_clean.st_api import *
 import matplotlib
 import matplotlib.pyplot as plt
 import streamlit as st
 import pandas as pd
-import numpy as np
 from autoforest.operations import *
 
 __all__ = ['show_continuous_stats']
@@ -22,7 +22,8 @@ def show_operations(df: pd.DataFrame, label):
                'exp': TfmExp,
                'normalize': TfmNormalize,
                'replace': TfmReplace,
-               'add': TfmAdd}
+               'add': TfmAdd,
+               'diff': TfmDiff}
     with st.expander('Operations'):
         if 'float' in df[label].dtype.name:
             options = [' ', 'log', 'exp', 'normalize', 'add']
@@ -42,9 +43,34 @@ def show_operations(df: pd.DataFrame, label):
                 except BaseException as e:
                     print(f'Error{e}')
 
+
+def get_adfuller_result(timeseries):
+    dftest = adfuller(timeseries, autolag='AIC')
+    dfoutput = pd.Series(dftest[0:4], index=['Test Statistic', 'p-value', '#Lags Used', 'Number of Observations Used'])
+    for key, value in dftest[4].items():
+        dfoutput['Critical Value (%s)' % key] = value
+    return dfoutput
+
+
+def get_kpss_result(timeseries):
+    kpsstest = kpss(timeseries, regression='c')
+    kpss_output = pd.Series(kpsstest[0:3], index=['Test Statistic', 'p-value', 'Lags Used'])
+    for key, value in kpsstest[3].items():
+        kpss_output['Critical Value (%s)' % key] = value
+    return kpss_output
+
+
 def show_continuous_stats():
     df = get_df()
     label = get_label()
+
+    cols = st.columns(2)
+    cols[0].write('Result Adfuller:')
+    cols[1].write('Result KPSS:')
+    cols = st.columns(2)
+    #cols[0].write(get_adfuller_result(df[label]))
+    #cols[1].write(get_kpss_result(df[label]))
+
     font = {'size': PLOT_FONT_SIZE}
     matplotlib.rc('font', **font)
 
@@ -59,4 +85,4 @@ def show_continuous_stats():
     plt.title('values')
     df[label].plot()
 
-    st.pyplot(plt.gcf())
+    st.write(plt.gcf())

@@ -10,6 +10,7 @@ import streamlit as st
 from autoforest.clean_data import get_na_mask, cast_val_to_dtype
 
 __all__ = ['BaseTransform',
+           'TfmDiff',
            'TfmNormalize',
            'TfmReplace',
            'TfmExp',
@@ -106,6 +107,26 @@ class TfmReplace(BaseTransform):
             submitted = stobj.form_submit_button("Replace")
             if submitted:
                 return TfmReplace(label=label, target_val=target, new_val=new_value)
+
+
+class TfmDiff(BaseTransform):
+    def __init__(self, label, steps=1):
+        super().__init__(label)
+        self.steps = steps
+
+    def encodes(self, df):
+        df[self.label].diff(self.steps)
+        return df
+
+    def __repr__(self):
+        return f"{self.name}({self.steps})"
+
+    @classmethod
+    def show_form(cls, stobj: st, label: str):
+        target = stobj.text_input('diff steps(int)')
+        if stobj.button('apply'):
+            steps = int(target)
+            return TfmDiff(label, steps=steps)
 
 
 class TfmExp(BaseTransform):
