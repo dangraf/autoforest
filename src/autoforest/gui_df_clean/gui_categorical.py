@@ -59,6 +59,6 @@ def show_categorigal_stats():
         plt.title('NaN values')
         plt.plot(nan_mask)
     fig = plt.gcf()
-    st.pyplot(fig)
+    st.write(fig)
     st.write(f"Num nan: {df[label].isna().sum()}")
     return df

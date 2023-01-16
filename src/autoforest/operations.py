@@ -9,6 +9,8 @@ import streamlit as st
 
 from autoforest.clean_data import get_na_mask, cast_val_to_dtype
 
+MAX_LEN_REORDER = 25
+
 __all__ = ['BaseTransform',
            'TfmDiff',
            'TfmNormalize',
@@ -240,12 +242,17 @@ class FillMean(BaseTransform):
 class FillRandomSampling(BaseTransform):
 
     # todo, add values in object to sample from
+    def __init__(self, label, all_values: pd.Series = None):
+        super().__init__(label)
+        self.all_values = all_values
 
     def encodes(self, df):
         _add_na_column(df, self.label)
         na = get_na_mask(df, self.label)
         df_notna = df[~na]
-        samples = df_notna[self.label].sample(n=na.sum(), replace=True)
+        if self.all_values is None:
+            self.all_values = df_notna[self.label]
+        samples = self.all_values.sample(n=na.sum(), replace=True)
         df.loc[na, self.label] = samples.values
         return df
 
@@ -261,11 +268,37 @@ class ReorderCategories(BaseTransform):
     def encodes(self, df: pd.DataFrame):
         # todo, handle if we have fewer categories, add them
         # todo, handle if there are too many categories, how to handle that?
-        df[self.label].cat.reorder_categories(self.categories)
+        df[self.label].cat.set_categories(new_categories=self.categories,
+                                          ordered=True,
+                                          inplace=True)
+        # df[self.label].cat.reorder_categories(self.categories)
         return df
 
     def __repr__(self):
         return f"{self.name} {self.categories}"
+
+    @classmethod
+    def show_form(cls, stobj, df, label):
+        num_cats = len(df[label].cat.categories)
+        options = list(range(num_cats))
+        selections = list()
+        categories = list(df[label].cat.categories)
+        if len(categories) > MAX_LEN_REORDER:
+            # datetimes etc can be categorical but seldom need to be ordered
+            return
+        cats = ', '.join(list(df[label].cat.categories))
+        stobj.write(f"**Current order of categories:** \n {cats}")
+        for i, cat in enumerate(categories):
+            s = stobj.selectbox(f"{cat}", options=options, index=i)
+            selections.append(s)
+        for i, sel in enumerate(selections):
+            if i != sel:
+                categories[sel], categories[i] = categories[i], categories[sel]
+                df[label] = df[label].cat.reorder_categories(categories, ordered=True)
+                stobj.experimental_rerun()
+                break
+        if stobj.button('Apply'):
+            return ReorderCategories(label=label, categories=categories)
 
 
 class FillConstant(BaseTransform):

@@ -1,6 +1,7 @@
 import streamlit as st
 import pandas as pd
 from pathlib import Path
+import matplotlib.pyplot as plt
 from autoforest.gui_df_clean.gui_categorical import *
 from autoforest.gui_df_clean.gui_continuous import *
 from autoforest.gui_df_clean.st_api import *
@@ -227,6 +228,8 @@ def run_state_machine():
 if __name__ == "__main__":
     init_states()
     st.set_page_config(layout="wide")
+
+    plt.style.use('dark_background')
     st.markdown("""
     <style>
     .small-font {
