@@ -1,3 +1,5 @@
+import pickle
+
 import numpy as np
 from typing import List
 from enum import Enum
@@ -11,7 +13,8 @@ __all__ = ['cast_val_to_dtype',
            'get_inf_mask',
            'fill_median',
            'fill_random_sampling',
-           'NormalizedDtype']
+           'NormalizedDtype',
+           'apply_operations_file']
 
 import pandas as pd
 
@@ -218,3 +221,11 @@ def add_datepart(df, field_name, prefix=None, drop=True, time=False):
     df[prefix + 'Elapsed'] = np.where(mask, field.values.astype(np.int64) // 10 ** 9, np.nan)
     if drop: df.drop(field_name, axis=1, inplace=True)
     return df
+
+def apply_operations_file(df, path_to_operations='/home/user/Downloads/dataframe.pcl'):
+    with open(path_to_operations, 'rb') as f:
+        ops = pickle.load(f)
+    for item in ops.items():
+        col = item[0]
+        for op in item[1]:
+            df = op(df)

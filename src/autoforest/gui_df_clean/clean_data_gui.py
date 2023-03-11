@@ -1,3 +1,5 @@
+import pickle
+
 import streamlit as st
 import pandas as pd
 from pathlib import Path
@@ -127,11 +129,23 @@ def show_navigation_buttons(strobj):
         output = BytesIO()
         df = get_df()
         df.to_feather(output)
-        st.download_button(
+        strobj.download_button(
             label="Press to Download",
             data=output,
             file_name="dataframe.feather",
             mime="feather")
+    if strobj.button('download pipeline'):
+        dict = st.session_state['operations']
+        output = BytesIO()
+        #with open('operations.pcl', 'wb') as f:
+        pickle.dump(dict, output)
+        strobj.download_button(
+            label="Press to Download",
+            data=output,
+            file_name="dataframe.pcl",
+            mime="pcl")
+
+
 
 
 def show_fillna(stobj):
