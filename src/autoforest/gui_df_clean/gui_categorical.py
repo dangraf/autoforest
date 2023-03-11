@@ -47,7 +47,7 @@ def show_categorigal_stats():
         reorder_categories(df, label)
     plt.subplot(4, 1, 1)
     plt.title('Count Values')
-    df[label].value_counts()[:PLOT_MAX_NUM_CATEGORIES].plot(kind='bar', figsize=(6, 3))
+    df[label].value_counts()[:PLOT_MAX_NUM_CATEGORIES].plot(kind='bar', figsize=(6, 3), linewidth=1.5)
     plt.xticks(rotation=45, ha='right')
     plt.subplot(4, 1, 3)
     plt.title('Categories converted to values')

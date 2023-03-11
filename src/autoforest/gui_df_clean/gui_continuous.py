@@ -23,25 +23,26 @@ def show_operations(df: pd.DataFrame, label):
                'normalize': TfmNormalize,
                'replace': TfmReplace,
                'add': TfmAdd,
-               'diff': TfmDiff}
-    with st.expander('Operations'):
-        if 'float' in df[label].dtype.name:
-            options = [' ', 'log', 'exp', 'normalize', 'add']
-        else:
-            options = [' ', 'replace', 'add']
+               'diff': TfmDiff,
+               'drop': DropCol}
+    #with st.expander('Operations'):
+    if 'float' in df[label].dtype.name:
+        options = [' ', 'log', 'exp', 'normalize', 'add', 'drop']
+    else:
+        options = [' ', 'replace', 'add', 'drop']
 
-        s = st.selectbox(f"Apply operation", options=options)
+    s = st.selectbox(f"Apply operation", options=options)
 
-        operation = op_list[s]
-        if operation is not None:
-            tfm = operation.show_form(stobj=st, df=None, label=label)
-            if tfm:
-                try:
-                    df = tfm.encodes(df)
-                    add_operation(tfm)
-                    set_df(df)
-                except BaseException as e:
-                    print(f'Error{e}')
+    operation = op_list[s]
+    if operation is not None:
+        tfm = operation.show_form(stobj=st, df=None, label=label)
+        if tfm:
+            try:
+                df = tfm.encodes(df)
+                add_operation(tfm, label)
+                set_df(df)
+            except BaseException as e:
+                print(f'Error{e}')
 
 
 def get_adfuller_result(timeseries):
@@ -64,13 +65,6 @@ def show_continuous_stats():
     df = get_df()
     label = get_label()
 
-    cols = st.columns(2)
-    cols[0].write('Result Adfuller:')
-    cols[1].write('Result KPSS:')
-    cols = st.columns(2)
-    #cols[0].write(get_adfuller_result(df[label]))
-    #cols[1].write(get_kpss_result(df[label]))
-
     font = {'size': PLOT_FONT_SIZE}
     matplotlib.rc('font', **font)
 
@@ -83,6 +77,6 @@ def show_continuous_stats():
 
     plt.subplot(2, 1, 2)
     plt.title('values')
-    df[label].plot()
+    df[label].plot(linewidth=0.5)
 
     st.write(plt.gcf())

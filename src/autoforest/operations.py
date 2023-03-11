@@ -28,7 +28,8 @@ __all__ = ['BaseTransform',
            'FillMean',
            'FillInterpolate',
            'FillConstant',
-           'DropNA', ]
+           'DropNA',
+           'DropCol']
 
 
 class BaseTransform(InplaceTransform):
@@ -378,6 +379,20 @@ class DropNA(BaseTransform):
     def encodes(self, df: pd.DataFrame):
         df.dropna(subset=[self.label], axis='index', inplace=True)
         return df
+
+    def __repr__(self):
+        return f"{self.name}"
+
+class DropCol(BaseTransform):
+    def encodes(self, df:pd.DataFrame):
+        print(self.label)
+        df.drop(self.label, axis=1, inplace=True)
+        return df
+
+    #@classmethod
+    #def show_form(cls, stobj: st, df: pd.DataFrame, label: str):
+    #    if stobj.button('add drop transform'):
+    #        return DropCol(label)
 
     def __repr__(self):
         return f"{self.name}"

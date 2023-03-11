@@ -177,7 +177,7 @@ def show_fillna(stobj):
                 # we can only have one fill transform
                 ops[-1] = tfm
             else:
-                add_operation(tfm)
+                add_operation(tfm, label)
             set_df(df)
 
 

@@ -74,8 +74,8 @@ def get_col_type() -> NormalizedDtype:
     return NormalizedDtype.get_normalized_dtype(df[label].dtype)
 
 
-def add_operation(obj):
-    label = get_label()
+def add_operation(obj, label):
+    print(f'adding:{label}, {obj.name}')
     ops = get_operations()
     print(f"len ops: {len(ops)}")
     ops.append(obj)
