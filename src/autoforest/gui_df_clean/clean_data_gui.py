@@ -198,7 +198,8 @@ def start_gui():
     uploaded_file = st.file_uploader("Choose a file")
     if uploaded_file is not None:
         df = read_dataframe(uploaded_file)
-        set_df(df_shrink(df))
+        df = df_shrink(df)
+        set_df(df)
         set_backup_df(df)
         set_state(CleanState.ITERATE_COLUMNS)
         set_col_index(0)
