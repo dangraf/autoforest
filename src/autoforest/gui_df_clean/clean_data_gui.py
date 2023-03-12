@@ -1,9 +1,9 @@
 import pickle
 
 import streamlit as st
-import pandas as pd
-from pathlib import Path
 import matplotlib.pyplot as plt
+
+from autoforest.clean_data import read_dataframe
 from autoforest.gui_df_clean.gui_categorical import *
 from autoforest.gui_df_clean.gui_continuous import *
 from autoforest.gui_df_clean.st_api import *
@@ -13,23 +13,6 @@ from io import BytesIO
 __all__ = ['run_state_machine']
 
 from autoforest.operations import *
-
-
-def read_dataframe(uploaded_file):
-    p = Path(uploaded_file.name)
-    print(p.suffix)
-    if p.suffix == '.csv':
-        df = pd.read_csv(uploaded_file, index_col=[0])
-    elif p.suffix == '.json':
-        df = pd.read_json(uploaded_file)
-    elif p.suffix == '.pcl':
-        df = pd.read_picke(uploaded_file)
-    elif p.suffix == '.feather':
-        df = pd.read_feather(uploaded_file)
-    else:
-        df = pd.DataFrame()
-    return df
-
 
 convert_options = NormalizedDtype.get_list_of_types()
 
@@ -198,7 +181,6 @@ def start_gui():
     uploaded_file = st.file_uploader("Choose a file")
     if uploaded_file is not None:
         df = read_dataframe(uploaded_file)
-        df = df_shrink(df)
         set_df(df)
         set_backup_df(df)
         set_state(CleanState.ITERATE_COLUMNS)

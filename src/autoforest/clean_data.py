@@ -1,4 +1,5 @@
 import pickle
+from pathlib import Path
 
 import numpy as np
 from typing import List
@@ -17,7 +18,8 @@ __all__ = ['cast_val_to_dtype',
            'fill_median',
            'fill_random_sampling',
            'NormalizedDtype',
-           'apply_operations_file']
+           'apply_operations_file',
+           'add_datepart']
 
 import pandas as pd
 
@@ -225,6 +227,7 @@ def add_datepart(df, field_name, prefix=None, drop=True, time=False):
     if drop: df.drop(field_name, axis=1, inplace=True)
     return df
 
+
 def apply_operations_file(df, path_to_operations='/home/user/Downloads/dataframe.pcl'):
     with open(path_to_operations, 'rb') as f:
         ops = pickle.load(f)
@@ -232,3 +235,22 @@ def apply_operations_file(df, path_to_operations='/home/user/Downloads/dataframe
         col = item[0]
         for op in item[1]:
             df = op(df)
+
+
+def read_dataframe(uploaded_file):
+    """
+    reads the dataframe and tries to convert to correct dtypes and shrinks it to save memory
+    """
+    p = Path(uploaded_file.name)
+    print(p.suffix)
+    if p.suffix == '.csv':
+        df = pd.read_csv(uploaded_file, index_col=[0])
+    elif p.suffix == '.json':
+        df = pd.read_json(uploaded_file)
+    elif p.suffix == '.pcl':
+        df = pd.read_picke(uploaded_file)
+    elif p.suffix == '.feather':
+        df = pd.read_feather(uploaded_file)
+    else:
+        df = pd.DataFrame()
+    return df_shrink(df)

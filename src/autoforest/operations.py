@@ -7,7 +7,7 @@ from numpy import float32, float64, longdouble
 import numpy as np
 import streamlit as st
 
-from autoforest.clean_data import get_na_mask, cast_val_to_dtype
+from autoforest.clean_data import get_na_mask, cast_val_to_dtype, add_datepart
 
 MAX_LEN_REORDER = 25
 
@@ -55,7 +55,7 @@ class SetDType(BaseTransform):
     def encodes(self, df: pd.DataFrame):
         print(f"setting dtype {self.dtype}")
         if self.dtype == 'datetime':
-            df[self.label] = pd.to_datetime(df[self.label], infer_datetime_format=True).astype('datetime64[ns]')
+            df[self.label] = pd.to_datetime(df[self.label], infer_datetime_format=True)
             print(f"dtype: {df[self.label].dtype}")
         else:
             df[self.label] = df[self.label].astype(self.dtype)
@@ -403,3 +403,9 @@ class DropCol(BaseTransform):
 
     def __repr__(self):
         return f"{self.name}"
+
+
+class TfmAddDatePart(BaseTransform):
+    def encodes(self, df: pd.DataFrame):
+        df = add_datepart(df, self.label)
+        return df

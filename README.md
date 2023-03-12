@@ -10,7 +10,6 @@ This file will become your README and also the index of your documentation.
 
 ## How to use
 
-Fill me in please! Don't forget code examples:
 
 # Todos:
 - show statistics for datetime dtypes
@@ -19,10 +18,8 @@ Fill me in please! Don't forget code examples:
 - add interactive plots?
 - add functions to handle dates in a better way.
 - add diff-function and maybe some plots to show input changes
-
-- hantera convertering till datetime
 - lägga till datetime-part
-- 
+- fixa deprication warning för omvandling från kategori till datetime.
 
 
 - check for stationary data:
@@ -33,6 +30,7 @@ from statsmodels.tsa.stattools import adfuller
 
 
 # Fixed:
+- hantera convertering till datetime
 - lägga till "drop column"
 - kunna ladda ner operationerna till fil
 - Kunna använda nerladdade filen på en dataframe.
@@ -40,6 +38,7 @@ from statsmodels.tsa.stattools import adfuller
 - fix reorder categories
 - fixa Conversion problemet.
 - Fixa till problem med att reset-data för categorier inte fungerar.
+- Fixad funktion som läser in och kryper dataframen
 kpss
 	adfuller(timeseries, autolag='AIC
 
