@@ -88,11 +88,12 @@ def get_operations():
 
 
 def replace_operation(obj):
+    label = get_label()
     ops = get_operations()
     if len(ops) > 0 and ops[-1].name == obj.name:
         ops[-1] = obj
     else:
-        add_operation(obj)
+        add_operation(obj, label)
 
 
 def clear_operations():

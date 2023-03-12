@@ -19,10 +19,11 @@ Fill me in please! Don't forget code examples:
 - add interactive plots?
 - add functions to handle dates in a better way.
 - add diff-function and maybe some plots to show input changes
-- fix reorder categories
+
 - hantera convertering till datetime
 - lägga till datetime-part
-- fixa Conversion problemet.
+
+- Fixa till problem med att reset-data för categorier inte fungerar.
 
 - check for stationary data:
 https://www.analyticsvidhya.com/blog/2018/09/non-stationary-time-series-python/
@@ -36,6 +37,8 @@ from statsmodels.tsa.stattools import adfuller
 - kunna ladda ner operationerna till fil
 - Kunna använda nerladdade filen på en dataframe.
 - fixa bugg med "add"
+- fix reorder categories
+- fixa Conversion problemet.
 kpss
 	adfuller(timeseries, autolag='AIC
 
