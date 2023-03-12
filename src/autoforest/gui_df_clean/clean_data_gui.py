@@ -39,7 +39,6 @@ def show_type_conversion(stobj):
     label = get_label()
 
     cols = stobj.columns([3, 1])
-    print(NormalizedDtype.get_list_of_types())
     selection = cols[0].selectbox(label='Change Column Type:',
                                   options=NormalizedDtype.get_list_of_types())
     if cols[1].button('convert') and selection != ' ':

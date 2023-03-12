@@ -271,10 +271,9 @@ class ReorderCategories(BaseTransform):
     def encodes(self, df: pd.DataFrame):
         # todo, handle if we have fewer categories, add them
         # todo, handle if there are too many categories, how to handle that?
-        df[self.label].cat.set_categories(new_categories=self.categories,
-                                          ordered=True,
-                                          inplace=True)
-        # df[self.label].cat.reorder_categories(self.categories)
+        df[self.label] = df[self.label].cat.set_categories(new_categories=self.categories, ordered=True)
+        df[self.label] = df[self.label].cat.reorder_categories(self.categories, ordered=True)
+        print(df[self.label].cat.categories)
         return df
 
     def __repr__(self):
@@ -300,7 +299,7 @@ class ReorderCategories(BaseTransform):
                 df[label] = df[label].cat.reorder_categories(categories, ordered=True)
                 stobj.experimental_rerun()
                 break
-        if stobj.button('Apply'):
+        if stobj.button('Apply Reorder'):
             return ReorderCategories(label=label, categories=categories)
 
 
@@ -385,14 +384,15 @@ class DropNA(BaseTransform):
     def __repr__(self):
         return f"{self.name}"
 
+
 class DropCol(BaseTransform):
-    def encodes(self, df:pd.DataFrame):
+    def encodes(self, df: pd.DataFrame):
         print(self.label)
         df.drop(self.label, axis=1, inplace=True)
         return df
 
-    #@classmethod
-    #def show_form(cls, stobj: st, df: pd.DataFrame, label: str):
+    # @classmethod
+    # def show_form(cls, stobj: st, df: pd.DataFrame, label: str):
     #    if stobj.button('add drop transform'):
     #        return DropCol(label)
 

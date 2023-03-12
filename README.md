@@ -22,6 +22,7 @@ Fill me in please! Don't forget code examples:
 - fix reorder categories
 - hantera convertering till datetime
 - lägga till datetime-part
+- fixa Conversion problemet.
 
 - check for stationary data:
 https://www.analyticsvidhya.com/blog/2018/09/non-stationary-time-series-python/
@@ -34,7 +35,7 @@ from statsmodels.tsa.stattools import adfuller
 - lägga till "drop column"
 - kunna ladda ner operationerna till fil
 - Kunna använda nerladdade filen på en dataframe.
-
+- fixa bugg med "add"
 kpss
 	adfuller(timeseries, autolag='AIC
 
