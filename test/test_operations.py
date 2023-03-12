@@ -74,3 +74,4 @@ def test_add_na_as_category():
     assert cats == ['NA', 1.0, 3.0]
 
 
+def test_cast_to_datetime():
