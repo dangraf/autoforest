@@ -1,4 +1,6 @@
 from statsmodels.tsa.stattools import adfuller, kpss
+
+from autoforest.gui_df_clean.constants import DEFAULT_PLOT_SPACING, DEFAULT_PLOT_LINEWIDTH, DEFAULT_FONT_DICT
 from autoforest.gui_df_clean.st_api import *
 import matplotlib
 import matplotlib.pyplot as plt
@@ -40,13 +42,15 @@ def show_continuous_stats():
         options = [' ', 'replace', 'add', 'drop']
     show_operations(df, label, options)
 
-    plt.figure(figsize=(6, 2))
+    fig = plt.figure(figsize=(6, 4))
     plt.subplot(2, 1, 1)
-    plt.title('histogram')
+
+    plt.title('Histogram', fontdict=DEFAULT_FONT_DICT)
     plt.hist(df[label], bins=PLOT_NUM_BINS)
 
     plt.subplot(2, 1, 2)
-    plt.title('values')
-    df[label].plot(linewidth=0.5)
+    plt.title('Values', fontdict=DEFAULT_FONT_DICT)
+    df[label].plot(linewidth=DEFAULT_PLOT_LINEWIDTH)
+    fig.tight_layout(pad=DEFAULT_PLOT_SPACING)
 
     st.write(plt.gcf())

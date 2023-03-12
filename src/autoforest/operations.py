@@ -55,6 +55,7 @@ class SetDType(BaseTransform):
     def encodes(self, df: pd.DataFrame):
         print(f"setting dtype {self.dtype}")
         if self.dtype == 'datetime':
+            df[self.label]  = df[self.label].astype('object')
             df[self.label] = pd.to_datetime(df[self.label], infer_datetime_format=True)
             print(f"dtype: {df[self.label].dtype}")
         else:

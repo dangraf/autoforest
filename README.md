@@ -19,7 +19,7 @@ This file will become your README and also the index of your documentation.
 - add functions to handle dates in a better way.
 - add diff-function and maybe some plots to show input changes
 - lägga till datetime-part
-- fixa deprication warning för omvandling från kategori till datetime.
+
 
 
 - check for stationary data:
@@ -39,6 +39,7 @@ from statsmodels.tsa.stattools import adfuller
 - fixa Conversion problemet.
 - Fixa till problem med att reset-data för categorier inte fungerar.
 - Fixad funktion som läser in och kryper dataframen
+- fixa deprication warning för omvandling från kategori till datetime.
 kpss
 	adfuller(timeseries, autolag='AIC
 
