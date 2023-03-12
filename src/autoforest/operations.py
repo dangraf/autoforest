@@ -68,10 +68,12 @@ class TfmAdd(BaseTransform):
     def encodes(self, df: pd.DataFrame):
         const = cast_val_to_dtype(df[self.label].dtype, self.const)
         df[self.label] += const
+        return df
 
     def decodes(self, df: pd.DataFrame):
         const = cast_val_to_dtype(df[self.label].dtype, self.const)
         df[self.label] -= const
+        return df
 
     def __repr__(self):
         return f"{self.name} {self.const}"

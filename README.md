@@ -28,18 +28,19 @@ https://www.analyticsvidhya.com/blog/2018/09/non-stationary-time-series-python/
 stationary data:
 augmented dickey Fuller test
 from statsmodels.tsa.stattools import adfuller
-- kunna ladda ner operationerna till fil
-- Kunna använda nerladdade filen på en dataframe.
+
 
 # Fixed:
 - lägga till "drop column"
+- kunna ladda ner operationerna till fil
+- Kunna använda nerladdade filen på en dataframe.
 
 kpss
 	adfuller(timeseries, autolag='AIC
 
 Nice to have:
 - reset dataframe
-- create module to modify similar dataframes
+
 
 
 

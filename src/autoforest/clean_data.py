@@ -4,6 +4,9 @@ import numpy as np
 from typing import List
 from enum import Enum
 import re
+from numpy import int8, int16, int32, int64
+from numpy import uint8, uint16, uint32, uint64
+from numpy import float32, float64, longdouble
 
 __all__ = ['cast_val_to_dtype',
            'df_shrink',
