@@ -20,7 +20,8 @@ def show_operations(df: pd.DataFrame, label: str, options: List[str]):
                'add': TfmAdd,
                'diff': TfmDiff,
                'drop': DropCol,
-               'reorder cats': ReorderCategories}
+               'reorder cats': ReorderCategories,
+               'add datepart': TfmAddDatePart}
     # with st.expander('Operations'):
     # if 'float' in df[label].dtype.name:
     #    options = [' ', 'log', 'exp', 'normalize', 'add', 'drop']
@@ -39,3 +40,5 @@ def show_operations(df: pd.DataFrame, label: str, options: List[str]):
                 set_df(df)
             except BaseException as e:
                 print(f'Error{e}')
+    if label not in df:
+        st.experimental_rerun()

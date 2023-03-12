@@ -6,6 +6,7 @@ import matplotlib.pyplot as plt
 from autoforest.clean_data import read_dataframe
 from autoforest.gui_df_clean.gui_categorical import *
 from autoforest.gui_df_clean.gui_continuous import *
+from autoforest.gui_df_clean.gui_datetime import show_datetime_stats
 from autoforest.gui_df_clean.st_api import *
 from autoforest.clean_data import *
 from io import BytesIO
@@ -200,6 +201,9 @@ def iterate_columns():
     if ntype.value == NormalizedDtype.Categorical.value:
         print('Enter Categorical')
         show_categorigal_stats()
+    elif ntype.value == NormalizedDtype.Datetime.value:
+        print('Enter Datetime')
+        show_datetime_stats()
     else:
         try:
             pass

@@ -33,14 +33,15 @@ def show_continuous_stats():
     df = get_df()
     label = get_label()
 
-    font = {'size': PLOT_FONT_SIZE}
-    matplotlib.rc('font', **font)
+
 
     if 'float' in df[label].dtype.name:
         options = [' ', 'log', 'exp', 'normalize', 'add', 'drop']
     else:
         options = [' ', 'replace', 'add', 'drop']
     show_operations(df, label, options)
+    font = {'size': PLOT_FONT_SIZE}
+    matplotlib.rc('font', **font)
 
     fig = plt.figure(figsize=(6, 4))
     plt.subplot(2, 1, 1)

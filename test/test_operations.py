@@ -72,6 +72,3 @@ def test_add_na_as_category():
     assert len(df_after2['a'].cat.categories) == 3
     cats = list(df_after2['a'].cat.categories)
     assert cats == ['NA', 1.0, 3.0]
-
-
-def test_cast_to_datetime():

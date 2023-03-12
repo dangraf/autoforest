@@ -29,7 +29,8 @@ __all__ = ['BaseTransform',
            'FillInterpolate',
            'FillConstant',
            'DropNA',
-           'DropCol']
+           'DropCol',
+           'TfmAddDatePart']
 
 
 class BaseTransform(InplaceTransform):

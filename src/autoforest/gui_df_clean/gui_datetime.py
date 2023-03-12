@@ -8,36 +8,33 @@ from autoforest.gui_df_clean.constants import DEFAULT_PLOT_SPACING, DEFAULT_PLOT
 from autoforest.gui_df_clean.st_api import *
 from autoforest.gui_df_clean.gui_helpers import show_operations
 
-__all__ = ['show_categorigal_stats']
-
 PLOT_MAX_NUM_CATEGORIES = 120
 PLOT_FONT_SIZE = 4
 MAX_LEN_REORDER = 25
+PLOT_NUM_BINS = 60
+
+__all__ = ['show_datetime_stats']
 
 
-def show_categorigal_stats():
+def show_datetime_stats():
     df = get_df()
     label = get_label()
     font = {'size': PLOT_FONT_SIZE}
 
     matplotlib.rc('font', **font)
 
-
     nan_mask = get_na_mask(df, label)
 
-    show_operations(df=df, label=label, options=['drop', 'reorder cats'])
-    plt.subplot(3, 1, 1)
-    plt.title('Count Values', fontdict=DEFAULT_FONT_DICT)
-    if nan_mask.sum() != 0:
-        figsize_y = 5
-    else:
-        figsize_y = 4
-    df[label].value_counts()[:PLOT_MAX_NUM_CATEGORIES].plot(kind='bar', figsize=(6, figsize_y), linewidth=1.5)
-    plt.xticks(rotation=45, ha='right')
-    plt.subplot(3, 1, 2)
+    show_operations(df=df, label=label, options=['drop', 'add datepart'])
 
-    plt.title('Categories converted to values', fontdict=DEFAULT_FONT_DICT)
-    df[label].cat.codes.plot(linewidth=DEFAULT_PLOT_LINEWIDTH)
+    plt.subplot(3, 1, 1)
+    plt.title('Histogram', fontdict=DEFAULT_FONT_DICT)
+    plt.hist(df[label], bins=PLOT_NUM_BINS)
+    plt.xticks(rotation=45, ha='right')
+
+    plt.subplot(3, 1, 2)
+    plt.title('Values', fontdict=DEFAULT_FONT_DICT)
+    df[label].plot(linewidth=DEFAULT_PLOT_LINEWIDTH)
 
     if nan_mask.sum() != 0:
         plt.subplot(3, 1, 3)
