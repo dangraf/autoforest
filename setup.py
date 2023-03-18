@@ -12,6 +12,7 @@ setup(
     description='tabular data thing',
     packages=find_packages(where='src'),
     package_dir={"": "src"},
+    scripts=['src/autoforest/gui_df_clean/run_streamlit.py'],
     #install_requires=read_requirements('requirements.txt')
 )
 # install_requires=read_requirements('requirements.txt')
