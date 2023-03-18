@@ -8,7 +8,7 @@ def read_requirements(filepath):
 
 setup(
     name='autoforest',
-    version='0.0.2',
+    version='0.0.3',
     description='tabular data thing',
     packages=find_packages(where='src'),
     package_dir={"": "src"},

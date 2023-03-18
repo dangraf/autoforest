@@ -254,3 +254,34 @@ def read_dataframe(uploaded_file):
     else:
         df = pd.DataFrame()
     return df_shrink(df)
+
+
+def split_data(df_x, df_y, pct):
+    "Splits the data into train and validation set"
+    " pct: 0-1 depending on how much that is in validation set"
+    df_x.reset_index(inplace=True, drop=True)
+    df_y.reset_index(inplace=True, drop=True)
+
+    l = int(len(df_x) * pct)
+    x_train = df_x.iloc[:-l]
+    x_valid = df_x.iloc[-l:]
+    y_train = df_y.iloc[:-l]
+    y_valid = df_y.iloc[-l:]
+    return x_train, y_train, x_valid, y_valid
+
+
+def split_data_by_time(df, y_col_name, split_pct=0.2, sampled_time=0, time_series=False, max_train_time_s=np.inf):
+    """
+    splits the data into smaller size if it takes too long to make one test-run
+    """
+    if not time_series:
+        df = df.sample(frac=1.0).reset_index(drop=True)
+    if max_train_time_s < sampled_time:
+        psamp = max_train_time_s / sampled_time
+        df_samp = df.sample(frac=psamp)
+        print(f'Pruning data to len: {len(df)}')
+    else:
+        df_samp = df
+    df_y_samp = df_samp[y_col_name]
+    df_x_samp = df_samp.drop(y_col_name, axis=1)
+    return split_data(df_x_samp, df_y_samp, split_pct)
