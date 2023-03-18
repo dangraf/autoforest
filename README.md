@@ -19,6 +19,17 @@ This file will become your README and also the index of your documentation.
 - add diff-function and maybe some plots to show input changes
 - Flytta datacleanern till ett separat projekt
 
+# random-forest grejj;
+- Optimera och spara en modell?
+	- rapids?
+- Få ut prediktion och osäkerhet
+
+- prediktera errors, var-> vart funkar modellen bra /dåligt: (kika på osäkerheten?)
+- Köra spare- correlation eller liknande för att ta bort dimentioner
+- pressentera pruning, för att få bort duplicerade kolumner
+
+- Pressentera vad som påverkar prediktionen med största värde
+- Pressentera vad som påverkar prediktionen med minsta värdet
 
 
 - check for stationary data:
