@@ -3,7 +3,7 @@ import pandas as pd
 import matplotlib.pyplot as plt
 import matplotlib
 
-from autoforest.clean_data import get_na_mask
+from autoforest.prepare_data import get_na_mask
 from autoforest.gui_df_clean.constants import DEFAULT_PLOT_SPACING, DEFAULT_PLOT_LINEWIDTH, DEFAULT_FONT_DICT
 from autoforest.gui_df_clean.st_api import *
 from autoforest.gui_df_clean.gui_helpers import show_operations

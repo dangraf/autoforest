@@ -19,7 +19,7 @@ __all__ = ['get_label',
            'replace_operation',
            'clear_operations']
 
-from autoforest.clean_data import NormalizedDtype
+from autoforest.prepare_data import NormalizedDtype
 
 
 class CleanState(Enum):

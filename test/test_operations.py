@@ -1,6 +1,6 @@
 from fastcore.all import Pipeline
 from autoforest.operations import *
-from autoforest.clean_data import df_shrink
+from autoforest.prepare_data import df_shrink
 import pandas as pd
 import numpy as np
 

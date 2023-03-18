@@ -3,12 +3,12 @@ import pickle
 import streamlit as st
 import matplotlib.pyplot as plt
 
-from autoforest.clean_data import read_dataframe
+from autoforest.prepare_data import read_dataframe
 from autoforest.gui_df_clean.gui_categorical import *
 from autoforest.gui_df_clean.gui_continuous import *
 from autoforest.gui_df_clean.gui_datetime import show_datetime_stats
 from autoforest.gui_df_clean.st_api import *
-from autoforest.clean_data import *
+from autoforest.prepare_data import *
 from io import BytesIO
 
 __all__ = ['run_state_machine']

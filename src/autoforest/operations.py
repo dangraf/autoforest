@@ -7,7 +7,7 @@ from numpy import float32, float64, longdouble
 import numpy as np
 import streamlit as st
 
-from autoforest.clean_data import get_na_mask, cast_val_to_dtype, add_datepart
+from autoforest.prepare_data import get_na_mask, cast_val_to_dtype, add_datepart
 
 MAX_LEN_REORDER = 25
 

@@ -1,7 +1,7 @@
 
 import pandas as pd
 
-from autoforest.clean_data import df_shrink
+from autoforest.prepare_data import df_shrink
 
 
 def test_shringk_data():
