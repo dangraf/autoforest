@@ -1,0 +1,11 @@
+pandas
+sklearn
+gpyopt
+gpy
+scipy
+matplotlib
+graphviz
+pathlib
+streamlit
+fastcore
+statsmodels

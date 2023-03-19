@@ -1,0 +1,4 @@
+__all__ = ['DEFAULT_PLOT_SPACING']
+DEFAULT_PLOT_SPACING = 3.0
+DEFAULT_PLOT_LINEWIDTH = 0.3
+DEFAULT_FONT_DICT = {'color': 'blue', 'fontsize': 12}
