@@ -90,8 +90,18 @@ class CorrelatedColumns:
         ret = [data[k] for k in data.keys()]
         return ret
 
-    def get_pairs(self, corr_limit=0.98):
+    def get_pairs(self, corr_limit: float = 0.98) -> List[List[str]]:
+        """
+        Return
+        """
         l = self._get_list_of_high_corr(corr_limit)
         self._del_duplicated_columns(l)
 
         return self._arrays_to_colnames(l)
+
+    @staticmethod
+    def pairs_to_cols_to_drop(pairs: List[List[str]]) -> List[str]:
+        to_drop = list()
+        for p in pairs:
+            to_drop.extend(p[1:])
+        return to_drop
