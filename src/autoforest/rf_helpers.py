@@ -13,7 +13,7 @@ import re
 __all__ = ['rmse',
            'set_rf_samples',
            'reset_rf_samples',
-           'RfRegressor',]
+           'RfRegressor', ]
 
 
 def rmse(x, y):
@@ -37,9 +37,8 @@ def reset_rf_samples():
 
 class RfRegressor:
     def __init__(self, df: pd.DataFrame,
-                 y_col_name,
-                 time_series=False,
-                 split_pct=0.2,
+                 y_col_name: str,
+                 split_func: callable,
                  max_train_time_s: int = np.inf):
         # df: dataframe
         # y_col_name         # name of the column we are going to predict
@@ -48,10 +47,9 @@ class RfRegressor:
         # time_series = False     If set to True, the last part of the dataframe is used as validation otherwise, it's randomized
 
         self.df = df
+        self.split_func = split_func
         self.y_col_name = y_col_name
         self.max_train_time_s = max_train_time_s
-        self.split_pct = split_pct
-        self.time_series = time_series
 
         self.model_class = RandomForestRegressor
         self.model = None
@@ -92,12 +90,8 @@ class RfRegressor:
         min_sample_leaf = int(min_sample_leaf)
         n_estimators = int(n_estimators)
         max_train_time_s = np.inf if self.train_time is None else self.max_train_time_s
-        data = split_data_by_time(self.df,
-                                  y_col_name=self.y_col_name,
-                                  split_pct=self.split_pct,
-                                  time_series=self.time_series,
-                                  sampled_time=self.train_time,
-                                  max_train_time_s=max_train_time_s)
+        data = self.split_func(self.df,
+                               dep_var=self.y_col_name)
         t_start = time.time()
         x_train, y_train, x_valid, y_valid = data
         set_rf_samples(int(len(x_train) * sample_frac))
@@ -140,6 +134,3 @@ class RfRegressor:
                             special_characters=True, rotate=True, precision=precision)
         IPython.display.display(graphviz.Source(re.sub('Tree {',
                                                        f'Tree {{ size={size}; ratio={ratio}', s)))
-
-
-
