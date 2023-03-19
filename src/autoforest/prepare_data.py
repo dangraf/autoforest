@@ -19,7 +19,8 @@ __all__ = ['cast_val_to_dtype',
            'fill_random_sampling',
            'NormalizedDtype',
            'apply_operations_file',
-           'add_datepart']
+           'add_datepart',
+           'split_by_sorded_column']
 
 import pandas as pd
 
@@ -270,18 +271,19 @@ def split_data(df_x, df_y, pct):
     return x_train, y_train, x_valid, y_valid
 
 
-def split_data_by_time(df, y_col_name, split_pct=0.2, sampled_time=0, time_series=False, max_train_time_s=np.inf):
-    """
-    splits the data into smaller size if it takes too long to make one test-run
-    """
-    if not time_series:
-        df = df.sample(frac=1.0).reset_index(drop=True)
-    if max_train_time_s < sampled_time:
-        psamp = max_train_time_s / sampled_time
-        df_samp = df.sample(frac=psamp)
-        print(f'Pruning data to len: {len(df)}')
-    else:
-        df_samp = df
-    df_y_samp = df_samp[y_col_name]
-    df_x_samp = df_samp.drop(y_col_name, axis=1)
-    return split_data(df_x_samp, df_y_samp, split_pct)
+def split_by_sorded_column(df, dep_var, pct=0.2, ascending=False):
+    l = len(df)
+    split_index = int(l * pct)
+    valid = df.sort_values('year', ascending=ascending).iloc[:split_index]
+    train = df.sort_values('year', ascending=ascending).iloc[split_index:]
+
+    valid = valid.sample(frac=1.0)
+    train = train.sample(frac=1.0)
+
+    train_x = train.drop(dep_var, axis=1)
+    train_y = train[dep_var]
+    valid_x = valid.drop(dep_var, axis=1)
+    valid_y = valid[dep_var]
+    return train_x, train_y, valid_x, valid_y
+
+
